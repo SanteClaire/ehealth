@@ -43,13 +43,17 @@ Hooks Personnalisés : Gestion des effets d'apparition (animations fade-in).
 Clonage du dépôt :
 
 bash
+
 git clone https://github.com/SanteClaire/mika-frontend-.git
 
 Installation des dépendances :
 bash
+
 cd frontend
+
 npm install
 
 Lancement en mode développement :
 bash
+
 npm run dev
