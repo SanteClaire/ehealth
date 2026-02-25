@@ -1,38 +1,80 @@
-🏥 SantéClaire - Frontend
-Bienvenue dans le dépôt frontend de SantéClaire, une plateforme moderne dédiée à la gestion de santé pour les patients et les professionnels du secteur médical.
+# 🏥 SantéClaire - Frontend
 
-✨ Caractéristiques du Projet
-Le projet propose une expérience utilisateur premium avec un design soigné, des animations fluides et une interface intuitive.
+Bienvenue sur le dépôt **SantéClaire**. Cette plateforme offre une solution complète pour la gestion de la santé, avec des parcours dédiés pour les **Patients** et les **Médecins**.
 
-👨‍⚕️ Parcours Inscription Médecin (Multi-étapes)
-Un flux d'inscription complet et sécurisé en 3 étapes :
+---
 
-Informations personnelles : Collecte des données de base avec indicateur de force du mot de passe en temps réel.
-Détails d'exercice : Informations sur la structure de santé, l'adresse professionnelle et les logiciels médicaux utilisés.
-Documents justificatifs : Zone de dépôt sécurisée pour la CPS (Carte Professionnelle de Santé), les diplômes et autres justificatifs.
-👤 Parcours Inscription Patient
-Interface simplifiée pour permettre aux patients de rejoindre la plateforme rapidement :
+## 📑 Sommaire
+1. [Aperçu du Projet](#-aperçu-du-projet)
+2. [Fonctionnalités Principales](#-fonctionnalités-principales)
+3. [Technologies](#-technologies)
+4. [Installation](#-installation)
+5. [Auteurs](#-auteurs)
 
-Formulaire d'inscription intuitif.
-Page de confirmation de création de compte avec conseils de bienvenue.
-🛠️ Composants Réutilisables & UI
-Stepper Uniformisé : Un système de progression visuel cohérent (style barres) utilisé sur tous les types d'inscription.
-Indicateur de force de mot de passe : Analyse en temps réel de la robustesse des mots de passe.
-Design Système : Utilisation de CSS Modules pour une isolation parfaite des styles et une maintenance simplifiée.
-Typographie : Intégration de la police "DM Sans" pour un look moderne et lisible.
-🚀 Technologies Utilisées
-React 18 : Pour une interface réactive et performante.
-Vite : Outil de build ultra-rapide.
-Vanilla CSS (Modules) : Pour un contrôle total du design sans dépendances lourdes.
-Hooks Personnalisés : Gestion des effets d'apparition (animations fade-in).
-📦 Installation et Lancement
-Clonage du dépôt :
-bash
+---
+
+## 🔍 Aperçu du Projet
+
+SantéClaire est conçu avec une approche **"User-First"**, privilégiant une esthétique moderne (Glassmorphism, animations fluides) et une navigation intuitive. Le but est de simplifier les démarches administratives de santé.
+
+---
+
+## 🚀 Fonctionnalités Principales
+
+### 👨‍⚕️ Parcours Professionnel (Médecin)
+Un système d'inscription robuste en **3 étapes** :
+- **Étape 1 : Informations** - État Civil & Sécurité (Force du mot de passe).
+- **Étape 2 : Exercice** - Détails de la structure & Logiciels métier.
+- **Étape 3 : Documents** - Téléchargement sécurisé (CPS, Diplômes).
+
+### 👥 Parcours Patient
+- Inscription rapide et sécurisée.
+- Interface de confirmation avec guide de démarrage.
+
+### 💎 Design & UI
+- **Design Système** : Utilisation stricte de CSS Modules.
+- **Micro-animations** : Effets de fondu et transitions fluides.
+- **Responsive** : Interface totalement adaptée aux mobiles et tablettes.
+
+---
+
+## 💻 Technologies
+
+| Technologie | Usage |
+| :--- | :--- |
+| **React 18** | Framework UI Principal |
+| **Vite** | Build Tooling & Dev Server |
+| **CSS Modules** | Styling Scoped & Maintenance |
+| **Lucide / SVG** | Iconographie moderne |
+
+---
+
+## ⚙️ Installation
+
+### Pré-requis
+- Node.js (v16+)
+- npm ou yarn
+
+### Étapes
+```bash
+# 1. Cloner le projet
 git clone https://github.com/SanteClaire/mika-frontend-.git
-Installation des dépendances :
-bash
+
+# 2. Accéder au dossier
 cd frontend
+
+# 3. Installer les dépendances
 npm install
-Lancement en mode développement :
-bash
+
+# 4. Lancer l'application
 npm run dev
+```
+
+---
+
+## 👤 Auteurs
+- **Mika** - *Développement Frontend & Design*
+- **SantéClaire Team**
+
+---
+*SantéClaire — La santé, en toute simplicité.*
