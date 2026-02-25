@@ -1,0 +1,453 @@
+/* ── Layout global ── */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ══════════════════════════════════
+   PANNEAU GAUCHE
+══════════════════════════════════ */
+.left {
+    width: 38%;
+    min-width: 320px;
+    background: linear-gradient(160deg, #0F2445 0%, #1B3A6B 60%, #0EA5B0 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Cercle déco fond */
+.left::before {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: rgba(14, 165, 176, 0.12);
+    top: -80px;
+    right: -100px;
+    pointer-events: none;
+}
+
+.leftTop {
+    width: 100%;
+}
+
+.leftLogo {
+    width: 160px;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 0 6px rgba(14, 230, 255, 0.9)) drop-shadow(0 0 14px rgba(14, 230, 255, 0.7)) drop-shadow(0 0 28px rgba(14, 200, 255, 0.5));
+}
+
+/* Illustration SVG */
+.leftIllustration {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+}
+
+.doctorCard {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    backdrop-filter: blur(8px);
+    padding: 1.5rem 1.5rem 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 290px;
+    min-height: 310px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+    animation: floatCard 4s ease-in-out infinite;
+    overflow: hidden;
+}
+
+.doctorImg {
+    width: 270px;
+    object-fit: contain;
+    display: block;
+}
+
+@keyframes floatCard {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.leftContent {
+    text-align: center;
+    color: #fff;
+}
+
+.leftTitle {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.leftSubtitle {
+    font-size: 0.95rem;
+    opacity: 0.82;
+    line-height: 1.55;
+}
+
+/* Badges HDS / RGPD / Chiffré */
+.badges {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border-radius: 20px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+    letter-spacing: 0.02em;
+}
+
+/* ══════════════════════════════════
+   PANNEAU DROIT
+══════════════════════════════════ */
+.right {
+    flex: 1;
+    background: #F7F8FC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    position: relative;
+}
+
+.rightLogoWrap {
+    position: absolute;
+    top: 1.75rem;
+    right: 2rem;
+}
+
+.rightLogo {
+    width: 130px;
+    object-fit: contain;
+}
+
+/* ── Carte formulaire ── */
+.formCard {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 40px rgba(15, 36, 69, 0.09);
+    padding: 2.75rem 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(28px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.heading {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #0F2445;
+    margin-bottom: 0.3rem;
+    letter-spacing: -0.03em;
+}
+
+.subheading {
+    color: #6B7280;
+    font-size: 0.92rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ── Tabs ── */
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #E5E7EB;
+    margin-bottom: 1.75rem;
+}
+
+.tab {
+    flex: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.65rem 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #6B7280;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0EA5B0;
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+}
+
+.tabActive {
+    color: #0EA5B0;
+}
+
+.tabActive::after {
+    transform: scaleX(1);
+}
+
+/* ── Form ── */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.passwordRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.forgotLink {
+    font-size: 0.82rem;
+    color: #0EA5B0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.forgotLink:hover {
+    opacity: 0.75;
+}
+
+/* Input */
+.inputWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 0.9rem;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 0.75rem 2.75rem 0.75rem 2.75rem;
+    font-size: 0.92rem;
+    color: #111827;
+    background: #F9FAFB;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+
+.input::placeholder {
+    color: #C4C9D4;
+}
+
+.input:focus {
+    border-color: #0EA5B0;
+    box-shadow: 0 0 0 3px rgba(14, 165, 176, 0.12);
+    background: #fff;
+}
+
+.eyeBtn {
+    position: absolute;
+    right: 0.85rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+    padding: 0.15rem;
+    transition: color 0.2s;
+}
+
+.eyeBtn:hover {
+    color: #0EA5B0;
+}
+
+/* ── Bouton submit ── */
+.btnSubmit {
+    margin-top: 0.5rem;
+    width: 100%;
+    background: linear-gradient(135deg, #0F2445 0%, #1B3A6B 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+    font-family: inherit;
+}
+
+.btnSubmit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(15, 36, 69, 0.28);
+    filter: brightness(1.08);
+}
+
+.btnSubmit:active {
+    transform: translateY(0);
+}
+
+/* ── Divider ── */
+.divider {
+    text-align: center;
+    margin: 1.4rem 0 0.9rem;
+    position: relative;
+    color: #C4C9D4;
+    font-size: 0.82rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background: #E5E7EB;
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* ── Register link ── */
+.registerText {
+    text-align: center;
+    font-size: 0.88rem;
+    color: #6B7280;
+}
+
+.registerLink {
+    background: none;
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    color: #0EA5B0;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.registerLink:hover {
+    opacity: 0.75;
+}
+
+/* ── Note sécurité ── */
+.secureNote {
+    text-align: center;
+    font-size: 0.76rem;
+    color: #9CA3AF;
+    margin-top: 1.1rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .wrapper {
+        flex-direction: column;
+    }
+
+    .left {
+        width: 100%;
+        min-height: 280px;
+        padding: 2rem 1.5rem;
+    }
+
+    .doctorCard {
+        width: 210px;
+        min-height: 220px;
+    }
+
+    .doctorImg {
+        width: 190px;
+    }
+
+    .leftTitle {
+        font-size: 1.3rem;
+    }
+
+    .right {
+        padding: 2rem 1rem;
+    }
+
+    .formCard {
+        padding: 2rem 1.5rem;
+    }
+
+    .rightLogoWrap {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .rightLogo {
+        width: 100px;
+    }
+}

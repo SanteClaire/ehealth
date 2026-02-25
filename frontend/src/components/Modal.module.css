@@ -1,0 +1,144 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 36, 69, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeOverlay 0.25s ease;
+}
+
+.modal {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+    animation: slideModal 0.3s ease;
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    background: var(--off-white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+    transition: all 0.2s;
+}
+
+.close:hover {
+    background: var(--gray-light);
+}
+
+.title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 8px;
+    letter-spacing: -0.8px;
+}
+
+.sub {
+    color: var(--gray);
+    font-size: 15px;
+    margin-bottom: 36px;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.card {
+    border: 2px solid var(--gray-light);
+    border-radius: 16px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    background: white;
+}
+
+.card:hover {
+    border-color: var(--teal);
+    box-shadow: 0 8px 32px rgba(14, 165, 176, 0.15);
+    transform: translateY(-2px);
+}
+
+.patient:hover {
+    border-color: var(--navy);
+    box-shadow: 0 8px 32px rgba(15, 36, 69, 0.15);
+}
+
+.icon {
+    font-size: 32px;
+}
+
+.cardTitle {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--navy);
+}
+
+.cardDesc {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.5;
+    font-weight: 300;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 100px;
+    width: fit-content;
+    margin-top: 4px;
+}
+
+.free {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.pro {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.footerNote {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--gray);
+}
+
+.footerNote a {
+    color: var(--teal);
+    text-decoration: none;
+    font-weight: 500;
+}

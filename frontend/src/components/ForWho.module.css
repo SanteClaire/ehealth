@@ -1,0 +1,183 @@
+.section {
+    padding: 100px 80px;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+}
+
+.section::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(14, 165, 176, 0.15) 0%, transparent 65%);
+    border-radius: 50%;
+}
+
+.eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+}
+
+.title {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: white;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.sub {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 300;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 64px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.card {
+    border-radius: 20px;
+    padding: 40px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: default;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.patient {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.medecin {
+    background: var(--teal);
+    position: relative;
+    overflow: hidden;
+}
+
+.medecin::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -60px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.icon {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.cardTitle {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+}
+
+.cardDesc {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.65;
+    margin-bottom: 24px;
+    font-weight: 300;
+}
+
+.medecin .cardDesc {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+
+.list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.list li::before {
+    content: '✓';
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+.medecin .list li {
+    color: white;
+}
+
+.medecin .list li::before {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: none;
+}
+
+.patientBtn {
+    background: white;
+    color: var(--navy);
+}
+
+.patientBtn:hover {
+    background: var(--teal-light);
+    transform: translateY(-1px);
+}
+
+.medecinBtn {
+    background: var(--navy);
+    color: white;
+}
+
+.medecinBtn:hover {
+    background: rgba(15, 36, 69, 0.85);
+    transform: translateY(-1px);
+}

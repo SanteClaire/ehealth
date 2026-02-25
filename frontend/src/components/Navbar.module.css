@@ -1,0 +1,97 @@
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 0 48px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s;
+}
+
+.nav.scrolled {
+    box-shadow: 0 4px 32px rgba(15, 36, 69, 0.08);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.logoImg {
+    height: 72px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.navLinks {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+}
+
+.navLinks a {
+    text-decoration: none;
+    color: var(--gray);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navLinks a:hover {
+    color: var(--navy);
+}
+
+.navCta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btnOutline {
+    padding: 9px 20px;
+    border: 1.5px solid var(--navy);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--navy);
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.btnOutline:hover {
+    background: var(--navy);
+    color: white;
+}
+
+.btnPrimary {
+    padding: 9px 20px;
+    background: var(--navy);
+    border: 1.5px solid var(--navy);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.btnPrimary:hover {
+    background: var(--navy-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(15, 36, 69, 0.25);
+}

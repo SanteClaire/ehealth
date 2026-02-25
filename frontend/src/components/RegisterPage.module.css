@@ -1,0 +1,299 @@
+/* ── Page ── */
+.page {
+    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+    background: #F7F8FC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #111827;
+}
+
+/* ── Header ── */
+.header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 2rem 0;
+    gap: 0.5rem;
+}
+
+.headerLogo {
+    width: 110px;
+    object-fit: contain;
+}
+
+.backLink {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: #6B7280;
+    font-family: inherit;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+.backLink:hover {
+    color: #0F2445;
+}
+
+/* ── Hero ── */
+.hero {
+    text-align: center;
+    padding: 1.25rem 1rem 0;
+}
+
+.title {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #0F2445;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.3rem;
+}
+
+.subtitle {
+    font-size: 0.92rem;
+    color: #6B7280;
+}
+
+/* ── Cards ── */
+.cards {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    max-width: 920px;
+    width: 100%;
+    justify-content: center;
+    flex: 1;
+}
+
+.card {
+    background: #fff;
+    border-radius: 18px;
+    border: 2px solid #E5E7EB;
+    padding: 1.5rem 1.75rem 1.4rem;
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    cursor: pointer;
+    animation: fadeUp 0.5s ease both;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(15, 36, 69, 0.1);
+}
+
+.cardPatient:hover {
+    border-color: #1B3A6B;
+}
+
+.cardMedecin:hover {
+    border-color: #0EA5B0;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Icon ── */
+.iconWrap {
+    width: 56px;
+    height: 56px;
+    background: #EEF2FF;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconTeal {
+    background: #E0F7F9;
+}
+
+/* ── Médecin top row ── */
+.cardMedecinTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+/* ── Badge ── */
+.badge {
+    background: #FFF4E5;
+    color: #C2690A;
+    border: 1px solid #FFD999;
+    border-radius: 20px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Textes carte ── */
+.cardTitle {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0F2445;
+    margin: 0;
+}
+
+.cardTitleTeal {
+    color: #0EA5B0;
+}
+
+.cardDesc {
+    font-size: 0.9rem;
+    color: #6B7280;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ── Features list ── */
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.features li {
+    font-size: 0.9rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.check {
+    color: #1B3A6B;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.checkTeal {
+    color: #0EA5B0;
+}
+
+/* ── Buttons ── */
+.btn {
+    margin-top: auto;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 0.95rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.07);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.btnPatient {
+    background: linear-gradient(135deg, #0F2445 0%, #1B3A6B 100%);
+    color: #fff;
+}
+
+.btnMedecin {
+    background: linear-gradient(135deg, #0EA5B0 0%, #0d8f99 100%);
+    color: #fff;
+}
+
+/* ── Login link ── */
+.loginText {
+    font-size: 0.88rem;
+    color: #6B7280;
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+}
+
+.loginLink {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0EA5B0;
+    font-family: inherit;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.loginLink:hover {
+    opacity: 0.75;
+}
+
+/* ── Footer ── */
+.footer {
+    width: 100%;
+    border-top: 1px solid #E5E7EB;
+    padding: 0.75rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: #9CA3AF;
+}
+
+.footerLinks {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footerLinks a {
+    color: #9CA3AF;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footerLinks a:hover {
+    color: #374151;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+    .cards {
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem;
+    }
+
+    .card {
+        max-width: 100%;
+    }
+
+    .title {
+        font-size: 1.6rem;
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+}

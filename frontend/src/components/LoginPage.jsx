@@ -1,0 +1,154 @@
+import { useState } from 'react'
+import styles from './LoginPage.module.css'
+import logo from '../assets/logo2.png'
+import doctorImg from '../assets/doctor.png'
+
+export default function LoginPage({ onClose, onRegister }) {
+    const [role, setRole] = useState('patient')
+    const [showPassword, setShowPassword] = useState(false)
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        // TODO: connect to backend auth
+        console.log('Login:', { role, email, password })
+    }
+
+    return (
+        <div className={styles.wrapper}>
+            {/* ── Panneau gauche ── */}
+            <aside className={styles.left}>
+                <div className={styles.leftTop}>
+                    <img src={logo} alt="SantéClaire" className={styles.leftLogo} />
+                </div>
+
+                <div className={styles.leftIllustration}>
+                    <div className={styles.doctorCard}>
+                        <img src={doctorImg} alt="Médecin SantéClaire" className={styles.doctorImg} />
+                    </div>
+                </div>
+
+                <div className={styles.leftContent}>
+                    <h2 className={styles.leftTitle}>Bienvenue sur<br />SantéClaire</h2>
+                    <p className={styles.leftSubtitle}>La plateforme qui connecte patients et<br />médecins en toute sécurité.</p>
+                </div>
+
+                <div className={styles.badges}>
+                    <span className={styles.badge}>🔒 HDS</span>
+                    <span className={styles.badge}>🇫🇷 RGPD</span>
+                    <span className={styles.badge}>🔐 Chiffré</span>
+                </div>
+            </aside>
+
+            {/* ── Panneau droit ── */}
+            <main className={styles.right}>
+
+                <div className={styles.formCard}>
+                    <h1 className={styles.heading}>Connexion</h1>
+                    <p className={styles.subheading}>Accédez à votre espace personnel</p>
+
+                    {/* Tabs Patient / Médecin */}
+                    <div className={styles.tabs}>
+                        <button
+                            className={`${styles.tab} ${role === 'patient' ? styles.tabActive : ''}`}
+                            onClick={() => setRole('patient')}
+                        >
+                            Patient
+                        </button>
+                        <button
+                            className={`${styles.tab} ${role === 'medecin' ? styles.tabActive : ''}`}
+                            onClick={() => setRole('medecin')}
+                        >
+                            Médecin
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className={styles.form}>
+                        {/* Email */}
+                        <div className={styles.field}>
+                            <label htmlFor="email" className={styles.label}>Email</label>
+                            <div className={styles.inputWrap}>
+                                <span className={styles.inputIcon}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="2" y="4" width="20" height="16" rx="3" />
+                                        <path d="m2 7 10 7 10-7" />
+                                    </svg>
+                                </span>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    placeholder="votre@email.fr"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    className={styles.input}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Mot de passe */}
+                        <div className={styles.field}>
+                            <div className={styles.passwordRow}>
+                                <label htmlFor="password" className={styles.label}>Mot de passe</label>
+                                <a href="#" className={styles.forgotLink}>Mot de passe oublié ?</a>
+                            </div>
+                            <div className={styles.inputWrap}>
+                                <span className={styles.inputIcon}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" />
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                    </svg>
+                                </span>
+                                <input
+                                    id="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    className={styles.input}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.eyeBtn}
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    aria-label="Afficher/masquer mot de passe"
+                                >
+                                    {showPassword ? (
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                                            <line x1="1" y1="1" x2="23" y2="23" />
+                                        </svg>
+                                    ) : (
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" className={styles.btnSubmit}>
+                            Se connecter
+                        </button>
+                    </form>
+
+                    <div className={styles.divider}><span>— ou —</span></div>
+
+                    <p className={styles.registerText}>
+                        Pas encore de compte ?{' '}
+                        <button
+                            className={styles.registerLink}
+                            onClick={() => onRegister && onRegister()}
+                        >Créer un compte →</button>
+                    </p>
+
+                    <p className={styles.secureNote}>🔒 Connexion sécurisée • Données hébergées en France</p>
+                </div>
+            </main>
+        </div>
+    )
+}

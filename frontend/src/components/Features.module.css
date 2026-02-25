@@ -1,0 +1,86 @@
+.section {
+    padding: 100px 80px;
+    background: var(--off-white);
+}
+
+.eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+}
+
+.title {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: var(--navy);
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.sub {
+    font-size: 16px;
+    color: var(--gray);
+    font-weight: 300;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 64px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 36px;
+    border: 1px solid var(--gray-light);
+    transition: all 0.3s;
+    cursor: default;
+}
+
+.card:hover {
+    border-color: var(--teal);
+    box-shadow: 0 8px 32px rgba(14, 165, 176, 0.12);
+    transform: translateY(-3px);
+}
+
+.iconWrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--teal-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+}
+
+.card:hover .iconWrap {
+    background: var(--navy);
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.title2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+}
+
+.text {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.65;
+    font-weight: 300;
+}
