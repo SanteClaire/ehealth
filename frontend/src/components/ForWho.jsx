@@ -3,15 +3,15 @@ import styles from './ForWho.module.css'
 export default function ForWho({ onOpenModal }) {
     return (
         <section className={styles.section} id="about">
-            <div className={styles.eyebrow}>Pour qui ?</div>
-            <h2 className={styles.title}>Une plateforme,<br />deux espaces.</h2>
-            <p className={styles.sub}>
+            <div className={`${styles.eyebrow} fade-in`}>Pour qui ?</div>
+            <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>Une plateforme,<br />deux espaces.</h2>
+            <p className={`${styles.sub} fade-in`} style={{ transitionDelay: '0.16s' }}>
                 Que vous soyez patient ou professionnel de santé, SantéClaire s'adapte à vos besoins.
             </p>
 
-            <div className={`${styles.grid} fade-in`}>
+            <div className={styles.grid}>
                 {/* Patient card */}
-                <div className={`${styles.card} ${styles.patient}`}>
+                <div className={`${styles.card} ${styles.patient} fade-in`} style={{ transitionDelay: '0.1s' }}>
                     <div className={styles.icon}>👤</div>
                     <div className={styles.cardTitle}>Espace Patient</div>
                     <p className={styles.cardDesc}>
@@ -30,7 +30,7 @@ export default function ForWho({ onOpenModal }) {
                 </div>
 
                 {/* Médecin card */}
-                <div className={`${styles.card} ${styles.medecin}`}>
+                <div className={`${styles.card} ${styles.medecin} fade-in`} style={{ transitionDelay: '0.22s' }}>
                     <div className={styles.icon}>🩺</div>
                     <div className={styles.cardTitle}>Espace Médecin</div>
                     <p className={styles.cardDesc}>

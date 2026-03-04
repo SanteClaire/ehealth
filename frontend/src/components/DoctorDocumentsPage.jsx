@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, ArrowLeft } from 'lucide-react'
 import styles from './DoctorDocumentsPage.module.css'
 import logo from '../assets/logo2.png'
 
@@ -48,7 +49,7 @@ export default function DoctorDocumentsPage({ onBack, onComplete }) {
             <main className={styles.card}>
                 <div className={styles.badgeWrap}>
                     <span className={styles.badge}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
+                        <Check size={14} strokeWidth={2.5} />
                         Vérification requise
                     </span>
                 </div>

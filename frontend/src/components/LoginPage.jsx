@@ -3,7 +3,7 @@ import styles from './LoginPage.module.css'
 import logo from '../assets/logo2.png'
 import doctorImg from '../assets/doctor.png'
 
-export default function LoginPage({ onClose, onRegister }) {
+export default function LoginPage({ onClose, onRegister, onDoctorLogin }) {
     const [role, setRole] = useState('patient')
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
@@ -11,8 +11,12 @@ export default function LoginPage({ onClose, onRegister }) {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        // TODO: connect to backend auth
-        console.log('Login:', { role, email, password })
+        if (role === 'medecin') {
+            onDoctorLogin && onDoctorLogin()
+        } else {
+            // TODO: dashboard patient
+            console.log('Login patient:', { email, password })
+        }
     }
 
     return (

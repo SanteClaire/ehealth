@@ -21,9 +21,9 @@ const steps = [
 export default function HowItWorks() {
     return (
         <section className={styles.section} id="how">
-            <div className={styles.eyebrow}>Comment ça marche</div>
-            <h2 className={styles.title}>Simple pour tout le monde.</h2>
-            <p className={styles.sub}>
+            <div className={`${styles.eyebrow} fade-in`}>Comment ça marche</div>
+            <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>Simple pour tout le monde.</h2>
+            <p className={`${styles.sub} fade-in`} style={{ transitionDelay: '0.16s' }}>
                 En 3 étapes, gérez l'intégralité de votre parcours de santé depuis une seule plateforme.
             </p>
             <div className={styles.steps}>
@@ -31,7 +31,7 @@ export default function HowItWorks() {
                     <div
                         key={i}
                         className={`${styles.step} fade-in`}
-                        style={{ transitionDelay: `${i * 0.1}s` }}
+                        style={{ transitionDelay: `${0.1 + i * 0.12}s` }}
                     >
                         <div className={styles.stepNum}>{step.num}</div>
                         <div className={styles.stepTitle}>{step.title}</div>

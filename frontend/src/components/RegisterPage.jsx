@@ -1,3 +1,4 @@
+import { User, Stethoscope, Check, AlertTriangle, ArrowLeft } from 'lucide-react'
 import styles from './RegisterPage.module.css'
 import logo from '../assets/logo2.png'
 
@@ -9,7 +10,7 @@ export default function RegisterPage({ onBack, onLogin, onPatient, onDoctor }) {
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.headerLogo} />
                 <button className={styles.backLink} onClick={onBack}>
-                    ← Retour à l'accueil
+                    <ArrowLeft size={15} /> Retour à l'accueil
                 </button>
             </header>
 
@@ -25,12 +26,7 @@ export default function RegisterPage({ onBack, onLogin, onPatient, onDoctor }) {
                 {/* Card Patient */}
                 <div className={`${styles.card} ${styles.cardPatient}`}>
                     <div className={styles.iconWrap}>
-                        {/* Person icon */}
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="#1B3A6B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="8" r="4" />
-                            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                        </svg>
+                        <User size={32} strokeWidth={1.8} color="#1B3A6B" />
                     </div>
 
                     <h2 className={styles.cardTitle}>Je suis patient</h2>
@@ -40,9 +36,9 @@ export default function RegisterPage({ onBack, onLogin, onPatient, onDoctor }) {
                     </p>
 
                     <ul className={styles.features}>
-                        <li><span className={styles.check}>✓</span> Inscription en 2 minutes</li>
-                        <li><span className={styles.check}>✓</span> Aucun document requis</li>
-                        <li><span className={`${styles.check} ${styles.bold}`}>✓</span> <strong>Gratuit</strong></li>
+                        <li><span className={styles.check}><Check size={13} /></span> Inscription en 2 minutes</li>
+                        <li><span className={styles.check}><Check size={13} /></span> Aucun document requis</li>
+                        <li><span className={`${styles.check} ${styles.bold}`}><Check size={13} /></span> <strong>Gratuit</strong></li>
                     </ul>
 
                     <button className={`${styles.btn} ${styles.btnPatient}`} onClick={() => onPatient && onPatient()}>
@@ -54,14 +50,9 @@ export default function RegisterPage({ onBack, onLogin, onPatient, onDoctor }) {
                 <div className={`${styles.card} ${styles.cardMedecin}`}>
                     <div className={styles.cardMedecinTop}>
                         <div className={`${styles.iconWrap} ${styles.iconTeal}`}>
-                            {/* Stethoscope icon */}
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-                                stroke="#0EA5B0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M4.5 6.5a3 3 0 0 0 6 0V4a.5.5 0 0 0-1 0v2.5a2 2 0 0 1-4 0V4a.5.5 0 0 0-1 0v2.5z" />
-                                <path d="M7.5 8.5v3a4.5 4.5 0 0 0 9 0v-1a2 2 0 1 0-2 0v1a2.5 2.5 0 0 1-5 0v-3" />
-                            </svg>
+                            <Stethoscope size={32} strokeWidth={1.8} color="#0EA5B0" />
                         </div>
-                        <span className={styles.badge}>⚠ Validation requise</span>
+                        <span className={styles.badge}><AlertTriangle size={13} /> Validation requise</span>
                     </div>
 
                     <h2 className={`${styles.cardTitle} ${styles.cardTitleTeal}`}>Je suis médecin</h2>
@@ -71,9 +62,9 @@ export default function RegisterPage({ onBack, onLogin, onPatient, onDoctor }) {
                     </p>
 
                     <ul className={styles.features}>
-                        <li><span className={`${styles.check} ${styles.checkTeal}`}>✓</span> Vérification sous 24-48h</li>
-                        <li><span className={`${styles.check} ${styles.checkTeal}`}>✓</span> Documents professionnels requis</li>
-                        <li><span className={`${styles.check} ${styles.checkTeal}`}>✓</span> Accès complet après validation</li>
+                        <li><span className={`${styles.check} ${styles.checkTeal}`}><Check size={13} /></span> Vérification sous 24-48h</li>
+                        <li><span className={`${styles.check} ${styles.checkTeal}`}><Check size={13} /></span> Documents professionnels requis</li>
+                        <li><span className={`${styles.check} ${styles.checkTeal}`}><Check size={13} /></span> Accès complet après validation</li>
                     </ul>
 
                     <button className={`${styles.btn} ${styles.btnMedecin}`} onClick={() => onDoctor && onDoctor()}>

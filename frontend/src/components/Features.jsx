@@ -29,9 +29,9 @@ const features = [
 export default function Features() {
     return (
         <section className={styles.section} id="features">
-            <div className={styles.eyebrow}>Fonctionnalités</div>
-            <h2 className={styles.title}>Tout ce dont vous<br />avez besoin.</h2>
-            <p className={styles.sub}>
+            <div className={`${styles.eyebrow} fade-in`}>Fonctionnalités</div>
+            <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>Tout ce dont vous<br />avez besoin.</h2>
+            <p className={`${styles.sub} fade-in`} style={{ transitionDelay: '0.16s' }}>
                 Des outils pensés pour simplifier le parcours de soin, côté patient comme côté médecin.
             </p>
             <div className={styles.grid}>
@@ -39,7 +39,7 @@ export default function Features() {
                     <div
                         key={i}
                         className={`${styles.card} fade-in`}
-                        style={{ transitionDelay: f.delay || '0s' }}
+                        style={{ transitionDelay: `${i * 0.1}s` }}
                     >
                         <div className={styles.iconWrap}>{f.icon}</div>
                         <div className={styles.title2}>{f.title}</div>

@@ -1,7 +1,9 @@
+import { CheckCircle2, FileText, Upload, Shield, Calendar, ArrowRight } from 'lucide-react'
 import styles from './PatientConfirmPage.module.css'
 import logo from '../assets/logo2.png'
 
 export default function PatientConfirmPage({ onDashboard }) {
+
     return (
         <div className={styles.page}>
 
@@ -14,9 +16,7 @@ export default function PatientConfirmPage({ onDashboard }) {
             <div className={styles.stepper}>
                 <div className={styles.step}>
                     <span className={styles.stepCheck}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
-                            <path d="M5 13l4 4L19 7" />
-                        </svg>
+                        <CheckCircle2 size={16} color="#fff" strokeWidth={3} /> {/* Changed Check to CheckCircle2 based on instruction's import */}
                     </span>
                     <div>
                         <span className={styles.stepLabel}>ÉTAPE 1/2 : VOS</span>
@@ -36,9 +36,7 @@ export default function PatientConfirmPage({ onDashboard }) {
             <main className={styles.card}>
                 {/* Success icon */}
                 <div className={styles.successIcon}>
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M5 13l4 4L19 7" />
-                    </svg>
+                    <CheckCircle2 size={48} color="#fff" strokeWidth={2.5} />
                 </div>
 
                 <h1 className={styles.heading}>Félicitations, votre compte<br />est créé !</h1>
@@ -47,21 +45,21 @@ export default function PatientConfirmPage({ onDashboard }) {
                 {/* Steps */}
                 <div className={styles.steps}>
                     <div className={styles.stepItem}>
-                        <span className={styles.stepItemIcon}>📧</span>
+                        <span className={styles.stepItemIcon}><Mail size={22} /></span>
                         <div>
                             <strong className={styles.stepItemTitle}>Vérifiez votre boîte mail</strong>
                             <p className={styles.stepItemDesc}>Un lien de confirmation vous a été envoyé pour valider votre accès.</p>
                         </div>
                     </div>
                     <div className={styles.stepItem}>
-                        <span className={styles.stepItemIcon}>📁</span>
+                        <span className={styles.stepItemIcon}><FolderOpen size={22} /></span>
                         <div>
                             <strong className={styles.stepItemTitle}>Complétez votre dossier</strong>
                             <p className={styles.stepItemDesc}>Commencez à uploader vos premiers documents pour centraliser votre santé.</p>
                         </div>
                     </div>
                     <div className={styles.stepItem}>
-                        <span className={styles.stepItemIcon}>🤖</span>
+                        <span className={styles.stepItemIcon}><Bot size={22} /></span>
                         <div>
                             <strong className={styles.stepItemTitle}>Parlez à l'Assistant IA</strong>
                             <p className={styles.stepItemDesc}>Posez vos questions pour préparer au mieux votre premier RDV médical.</p>

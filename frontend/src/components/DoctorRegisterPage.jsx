@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { Eye, EyeOff, Hospital, Info, ArrowLeft } from 'lucide-react'
 import styles from './DoctorRegisterPage.module.css'
 import logo from '../assets/logo2.png'
 
@@ -47,7 +48,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
 
             {/* ── Back link ── */}
             <button className={styles.backBtn} onClick={onBack}>
-                ← Choisir un autre profil
+                <ArrowLeft size={15} /> Choisir un autre profil
             </button>
 
             {/* ── Stepper ── */}
@@ -71,7 +72,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
 
             {/* ── Form card ── */}
             <main className={styles.card}>
-                <span className={styles.badge}>🏥 ESPACE MÉDECIN</span>
+                <span className={styles.badge}><Hospital size={14} /> ESPACE MÉDECIN</span>
                 <h1 className={styles.heading}>Vos informations personnelles</h1>
                 <p className={styles.subheading}>
                     Ces informations seront vérifiées par notre équipe avant activation de votre compte.
@@ -129,7 +130,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
                     {/* Numéro RPPS */}
                     <div className={styles.field}>
                         <label className={styles.label}>
-                            Numéro RPPS * <span className={styles.infoIcon} title="Le numéro RPPS est votre identifiant unique de professionnel de santé">ℹ</span>
+                            Numéro RPPS * <span className={styles.infoIcon} title="Le numéro RPPS est votre identifiant unique de professionnel de santé"><Info size={14} /></span>
                         </label>
                         <input className={styles.input} placeholder="1234567890"
                             value={form.rpps} onChange={set('rpps')} required />
@@ -143,18 +144,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
                                 value={form.password} onChange={set('password')} required />
                             <button type="button" className={styles.eyeBtn}
                                 onClick={() => setShowPw(!showPw)} aria-label="Afficher mot de passe">
-                                {showPw ? (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                                        <line x1="1" y1="1" x2="23" y2="23" />
-                                    </svg>
-                                ) : (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                        <circle cx="12" cy="12" r="3" />
-                                    </svg>
-                                )}
+                                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
                         </div>
                         {form.password && (

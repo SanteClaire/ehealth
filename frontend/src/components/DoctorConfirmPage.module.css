@@ -1,0 +1,357 @@
+/* ── Page ── */
+.page {
+    min-height: 100vh;
+    background: #F7F8FC;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #111827;
+    padding-bottom: 3rem;
+}
+
+/* ── Header ── */
+.header {
+    padding: 2rem 2rem 0;
+}
+
+.logo {
+    width: 130px;
+    object-fit: contain;
+}
+
+/* ── Success Icon ── */
+.successIcon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #22C55E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.75rem 0 1rem;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* ── Heading ── */
+.heading {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0F2445;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+.subheading {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin: 0 0 1.5rem;
+    text-align: center;
+}
+
+/* ── Récapitulatif Card ── */
+.card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 1.25rem;
+    animation: slideUp 0.45s ease both;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cardTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0F2445;
+    margin: 0 0 1rem;
+}
+
+.rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #F3F4F6;
+    padding-bottom: 0.65rem;
+}
+
+.row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.rowLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.rowIcon {
+    font-size: 1rem;
+}
+
+.rowValue {
+    font-weight: 600;
+    color: #111827;
+    text-align: right;
+}
+
+/* ── Étapes suivantes Card ── */
+.nextCard {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 1.5rem 1.75rem;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 1.25rem;
+}
+
+.nextTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0F2445;
+    margin: 0 0 1.2rem;
+}
+
+/* ── Timeline ── */
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.timelineItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    position: relative;
+    padding-bottom: 1.1rem;
+}
+
+.timelineItem:last-child {
+    padding-bottom: 0;
+}
+
+.timelineDotDone {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #22C55E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.timelineDotProgress {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #0EA5B0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.dotLetter {
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.timelineDotPending {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #D1D5DB;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.timelineLine {
+    position: absolute;
+    left: 12px;
+    top: 26px;
+    width: 2px;
+    height: calc(100% - 10px);
+    background: #E5E7EB;
+    z-index: 0;
+}
+
+.timelineContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding-top: 0.15rem;
+}
+
+.timelineLabel {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0F2445;
+}
+
+.timelineLabelGray {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #9CA3AF;
+}
+
+.timelineSub {
+    font-size: 0.78rem;
+    color: #9CA3AF;
+}
+
+.timelineSubActive {
+    font-size: 0.78rem;
+    color: #0EA5B0;
+    font-weight: 600;
+}
+
+/* ── Info Box ── */
+.infoBox {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.infoEmoji {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.infoText {
+    font-size: 0.85rem;
+    color: #1E40AF;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Buttons ── */
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 480px;
+}
+
+.btnDemo {
+    width: 100%;
+    background: #fff;
+    color: #0EA5B0;
+    border: 1.5px solid #0EA5B0;
+    border-radius: 12px;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+
+.btnDemo:hover {
+    background: #F0FDFE;
+    transform: translateY(-1px);
+}
+
+.btnHome {
+    width: 100%;
+    background: linear-gradient(135deg, #0F2445 0%, #1B3A6B 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+}
+
+.btnHome:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(15, 36, 69, 0.28);
+    filter: brightness(1.08);
+}
+
+/* ── Footer ── */
+.footer {
+    margin-top: 1.75rem;
+    font-size: 0.82rem;
+    color: #9CA3AF;
+    text-align: center;
+}
+
+.supportLink {
+    color: #0EA5B0;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.supportLink:hover {
+    opacity: 0.75;
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+
+    .card,
+    .nextCard,
+    .infoBox,
+    .buttons {
+        margin-left: 1rem;
+        margin-right: 1rem;
+        width: calc(100% - 2rem);
+    }
+
+    .heading {
+        font-size: 1.25rem;
+        padding: 0 1rem;
+    }
+}

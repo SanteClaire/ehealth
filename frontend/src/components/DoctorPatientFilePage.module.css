@@ -1,0 +1,817 @@
+/* ── Layout ── */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background: #F7F8FC;
+    font-family: 'DM Sans', sans-serif;
+    color: #111827;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    width: 180px;
+    min-width: 180px;
+    background: #fff;
+    border-right: 1px solid #E5E7EB;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem 0 1.25rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 10;
+}
+
+.sidebarTop {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.brand {
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+}
+
+.logo {
+    width: 105px;
+    object-fit: contain;
+}
+
+.brandSub {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    color: #9CA3AF;
+    font-weight: 600;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0 0.6rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    width: 100%;
+    transition: background 0.15s, color 0.15s;
+}
+
+.navItem:hover {
+    background: #F3F4F6;
+    color: #0F2445;
+}
+
+.navActive {
+    background: #0F2445 !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.sidebarBottom {
+    padding: 0 0.6rem;
+}
+
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+}
+
+.logoutBtn:hover {
+    background: #FEF2F2;
+    color: #EF4444;
+}
+
+/* ── Main ── */
+.main {
+    flex: 1;
+    margin-left: 180px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ── Patient header ── */
+.patientHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.patientLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.avatarWrap {
+    position: relative;
+}
+
+.avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: #6B7280;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.onlineDot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #22C55E;
+    border: 2px solid #fff;
+}
+
+.patientMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.patientName {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #0F2445;
+    margin: 0;
+}
+
+.statusPill {
+    background: #FEF3C7;
+    color: #B45309;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+}
+
+.detailRow {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    color: #6B7280;
+}
+
+.dot {
+    color: #D1D5DB;
+}
+
+.divider {
+    color: #D1D5DB;
+    margin: 0 0.25rem;
+}
+
+.bloodType strong {
+    color: #EF4444;
+}
+
+.patientActions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.btnPrimary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #0F2445;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.15s;
+}
+
+.btnPrimary:hover {
+    filter: brightness(1.15);
+}
+
+.btnSecondary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btnSecondary:hover {
+    background: #F3F4F6;
+}
+
+/* ── Access banner ── */
+.accessBanner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFBF0;
+    border: 1px solid #FDE68A;
+    border-left: 4px solid #F59E0B;
+    border-radius: 10px;
+    padding: 0.85rem 1.25rem;
+    gap: 1rem;
+}
+
+.bannerLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.bannerLock {
+    color: #F59E0B;
+    margin-top: 2px;
+}
+
+.bannerTitle {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #92400E;
+}
+
+.bannerSub {
+    font-size: 0.78rem;
+    color: #B45309;
+}
+
+.bannerRight {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.timer {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #F59E0B;
+    min-width: 60px;
+}
+
+.btnProlong {
+    background: #fff;
+    color: #F59E0B;
+    border: 1.5px solid #F59E0B;
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.btnProlong:hover {
+    background: #FEF3C7;
+}
+
+.btnEnd {
+    background: transparent;
+    color: #EF4444;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btnEnd:hover {
+    text-decoration: underline;
+}
+
+/* ── Content grid ── */
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+/* ── AI Card ── */
+.aiCard {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 1.25rem;
+}
+
+.aiHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+
+.aiTitle {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0F2445;
+    letter-spacing: 0.04em;
+}
+
+.aiSettings {
+    background: transparent;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+}
+
+.aiGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.aiBlock {
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.aiBlockCritical {
+    border-color: #FECACA;
+    background: #FFF5F5;
+}
+
+.aiBlockLabel {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #9CA3AF;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.35rem;
+}
+
+.aiBlockLabelRed {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #EF4444;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.35rem;
+}
+
+.aiBlockText {
+    font-size: 0.82rem;
+    color: #374151;
+    line-height: 1.4;
+}
+
+.aiBlockTextRed {
+    font-size: 0.82rem;
+    color: #EF4444;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.aiLink {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.8rem;
+    color: #0EA5B0;
+    cursor: pointer;
+    margin-top: 0.85rem;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.aiLink:hover {
+    text-decoration: underline;
+}
+
+/* ── History ── */
+.historySection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0F2445;
+    margin: 0;
+}
+
+.historyItem {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+}
+
+.historyIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.historyContent {
+    flex: 1;
+}
+
+.historyTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.historyTitle {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #0F2445;
+}
+
+.historyDate {
+    font-size: 0.78rem;
+    color: #9CA3AF;
+    white-space: nowrap;
+}
+
+.historyDesc {
+    font-size: 0.82rem;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.historyDoctor {
+    display: inline-block;
+    margin-top: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6B7280;
+    letter-spacing: 0.05em;
+}
+
+/* ── Right column ── */
+.rightCol {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sideCard {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.sideCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sideCardTitle {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0F2445;
+    margin: 0;
+}
+
+.sideCardSub {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    margin: 0;
+}
+
+/* Shared docs */
+.sharedDocRow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.3rem 0;
+}
+
+.sharedDocInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sharedDocName {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.sharedDocMeta {
+    font-size: 0.7rem;
+    color: #9CA3AF;
+}
+
+.sharedBadge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #15803D;
+    background: #DCFCE7;
+    padding: 0.15rem 0.45rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.hiddenBadge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #9CA3AF;
+    background: #F3F4F6;
+    padding: 0.15rem 0.45rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.seeAllLink {
+    background: transparent;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0EA5B0;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+    text-align: left;
+    margin-top: 0.25rem;
+}
+
+.seeAllLink:hover {
+    text-decoration: underline;
+}
+
+/* Tools */
+.toolsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.toolBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    border: 1.5px solid #E5E7EB;
+    background: #fff;
+    color: #374151;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.toolBtn:hover {
+    background: #F3F4F6;
+}
+
+.toolBtnPrimary {
+    background: #0F2445 !important;
+    color: #fff !important;
+    border-color: #0F2445 !important;
+}
+
+.toolBtnPrimary:hover {
+    filter: brightness(1.15);
+}
+
+.draftBox {
+    background: #F8FAFC;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+}
+
+.draftHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.draftLabel {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #6B7280;
+    letter-spacing: 0.05em;
+}
+
+.draftDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #F59E0B;
+}
+
+.draftEdit {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0;
+}
+
+.draftText {
+    font-size: 0.78rem;
+    color: #9CA3AF;
+    margin: 0;
+    font-style: italic;
+}
+
+.btnSign {
+    width: 100%;
+    background: #0F2445;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.15s;
+}
+
+.btnSign:hover {
+    filter: brightness(1.15);
+}
+
+/* Recent docs */
+.recentDocRow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.25rem 0;
+}
+
+.recentDocIcon {
+    font-size: 1.1rem;
+}
+
+.recentDocInfo {
+    flex: 1;
+}
+
+.recentDocName {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151;
+    display: block;
+}
+
+.recentDocMeta {
+    font-size: 0.7rem;
+    color: #9CA3AF;
+}
+
+.recentDocAction {
+    background: transparent;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    display: flex;
+}
+
+.recentDocAction:hover {
+    color: #0F2445;
+}
+
+.seeAllBtn {
+    background: transparent;
+    border: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #0EA5B0;
+    cursor: pointer;
+    font-family: inherit;
+    padding: 0;
+}
+
+/* Cercle de soins */
+.cercleCard {
+    background: #0F2445 !important;
+    border-color: #0F2445 !important;
+}
+
+.cercleTitle {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
+}
+
+.cercleRow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.cercleAvatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.cercleName {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.cercleRole {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Cols */
+.leftCol {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
