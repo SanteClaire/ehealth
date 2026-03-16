@@ -3,7 +3,7 @@ import styles from './LoginPage.module.css'
 import logo from '../assets/logo2.png'
 import doctorImg from '../assets/doctor.png'
 
-export default function LoginPage({ onClose, onRegister, onDoctorLogin }) {
+export default function LoginPage({ onClose, onRegister, onDoctorLogin, onPatientLogin }) {
     const [role, setRole] = useState('patient')
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
@@ -14,8 +14,7 @@ export default function LoginPage({ onClose, onRegister, onDoctorLogin }) {
         if (role === 'medecin') {
             onDoctorLogin && onDoctorLogin()
         } else {
-            // TODO: dashboard patient
-            console.log('Login patient:', { email, password })
+            onPatientLogin && onPatientLogin()
         }
     }
 

@@ -215,6 +215,7 @@ export default function App() {
         onClose={() => setShowLogin(false)}
         onRegister={() => { setShowLogin(false); setShowRegister(true) }}
         onDoctorLogin={() => { setShowLogin(false); setShowDoctorDashboard(true) }}
+        onPatientLogin={() => { setShowLogin(false); setShowPatientConfirm(true) }}
       />
     )
   }

@@ -2,7 +2,7 @@ import {
     LayoutDashboard, Users, Calendar, BarChart2, Settings,
     Search, Bell, Plus, CalendarDays, ClipboardList, FileText, FlaskConical,
     AlertTriangle, FileSignature, Download, Eye, ChevronRight, Play,
-    Hospital, Lock, Globe, ShieldCheck, MessageCircle
+    Hospital, Lock, Globe, ShieldCheck, MessageCircle, MessageSquare
 } from 'lucide-react'
 import styles from './DoctorDashboard.module.css'
 import PatientChatbot from './Chatbot/PatientChatbot'
@@ -61,6 +61,7 @@ const navItems = [
     { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard', active: true },
     { icon: Users, label: 'Mes Patients', id: 'patients' },
     { icon: Calendar, label: 'Planning', id: 'planning' },
+    { icon: MessageSquare, label: 'Messages', id: 'messages' },
     { icon: BarChart2, label: 'Rapports', id: 'reports' },
     { icon: Settings, label: 'Paramètres', id: 'settings' },
 ]
@@ -128,7 +129,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                             </div>
                         </div>
                     </div>
-                    <button className={styles.btnConsultation} onClick={onLogout}>
+                    <button className={styles.btnConsultation} onClick={() => onNavigate && onNavigate('patients')}>
                         <Play size={14} /> Démarrer une consultation
                     </button>
                 </div>
@@ -190,7 +191,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                         <div className={styles.planningCard}>
                             <div className={styles.planningHeader}>
                                 <h2 className={styles.planningTitle}>Planning du jour</h2>
-                                <button className={styles.linkBtn}>Voir le calendrier <ChevronRight size={13} /></button>
+                                <button className={styles.linkBtn} onClick={() => onNavigate && onNavigate('planning')}>Voir le calendrier <ChevronRight size={13} /></button>
                             </div>
 
                             <div className={styles.appointmentList}>
@@ -212,7 +213,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                                                 {a.status}
                                             </span>
                                             {a.action && (
-                                                <button className={styles.profileBtn}>{a.action}</button>
+                                                <button className={styles.profileBtn} onClick={() => onPatients && onPatients()}>{a.action}</button>
                                             )}
                                         </div>
                                     </div>
@@ -262,7 +263,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                                         </div>
                                     )
                                 })}
-                                <button className={styles.seeAllBtn}>Voir tous les documents</button>
+                                <button className={styles.seeAllBtn} onClick={() => onNavigate && onNavigate('patients')}>Voir tous les documents</button>
                             </div>
 
                         </div>

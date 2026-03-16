@@ -186,7 +186,7 @@ export default function DoctorPatientsPage({ onBack, onLogout, onPatientFile, on
                                 <div className={styles.actions}>
                                     <button className={styles.btnDossier} onClick={() => onPatientFile && onPatientFile()}>Voir le dossier</button>
                                     {p.status === 'active' && (
-                                        <button className={styles.btnConsult}>
+                                        <button className={styles.btnConsult} onClick={() => onPatientFile && onPatientFile()}>
                                             <Play size={13} /> Démarrer consultation
                                         </button>
                                     )}
