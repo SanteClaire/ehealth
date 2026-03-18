@@ -1,0 +1,24 @@
+# Configuration des services pour SantéClaire
+
+services:
+    # Configuration par défaut pour les services de ce fichier
+    _defaults:
+        autowire: true      # Injection automatique des dépendances
+        autoconfigure: true # Configuration automatique des tags
+
+    # Rend les classes du namespace App\ disponibles comme services
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Configuration explicite des services si nécessaire
+    App\Service\ChiffrementService:
+        arguments:
+            $encryptionKey: '%env(ENCRYPTION_KEY)%'
+
+    App\Service\ClassificationService:
+        arguments:
+            $openAiApiKey: '%env(OPENAI_API_KEY)%'

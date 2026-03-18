@@ -1,0 +1,70 @@
+# Configuration Security pour SantéClaire
+# Authentification JWT avec rôles PATIENT, MEDECIN, ADMIN
+
+security:
+    # Algorithme de hashage des mots de passe
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    # Provider pour récupérer les utilisateurs
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        
+        # Firewall pour le login (génération du JWT)
+        login:
+            pattern: ^/api/login
+            stateless: true
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        
+        # Firewall principal pour l'API
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~
+
+        main:
+            lazy: true
+            provider: app_user_provider
+
+    # Contrôle d'accès par rôle
+    access_control:
+        # Routes publiques (sans authentification)
+        - { path: ^/api/health, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        
+        # Routes spécifiques par rôle
+        - { path: ^/api/patient, roles: ROLE_PATIENT }
+        - { path: ^/api/medecin, roles: ROLE_MEDECIN }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        
+        # Toutes les autres routes API nécessitent une authentification
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+    # Hiérarchie des rôles
+    role_hierarchy:
+        ROLE_MEDECIN: ROLE_USER
+        ROLE_PATIENT: ROLE_USER
+        ROLE_ADMIN: [ROLE_MEDECIN, ROLE_PATIENT]
+
+when@test:
+    security:
+        password_hashers:
+            # Hashage plus rapide pour les tests
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4

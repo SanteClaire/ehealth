@@ -1,0 +1,72 @@
+# SantéClaire Backend - Docker Compose Configuration
+# Stack: PHP 8.2, PostgreSQL 15, Nginx, Redis
+
+services:
+  php:
+    build: ./docker/php
+    container_name: santeclaire-php
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://santeclaire:secret@postgres:5432/santeclaire?serverVersion=15&charset=utf8
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - santeclaire-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: santeclaire-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - santeclaire-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: santeclaire-postgres
+    environment:
+      POSTGRES_DB: santeclaire
+      POSTGRES_USER: santeclaire
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - santeclaire-network
+
+  redis:
+    image: redis:alpine
+    container_name: santeclaire-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - santeclaire-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: santeclaire-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@santeclaire.fr
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - santeclaire-network
+
+volumes:
+  postgres_data:
+
+networks:
+  santeclaire-network:
+    driver: bridge

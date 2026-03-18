@@ -1,0 +1,11 @@
+# Configuration des routes pour SantéClaire API
+
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+# Route pour le login JWT (gérée par lexik_jwt_authentication)
+api_login_check:
+    path: /api/login
