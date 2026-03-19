@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Eye, EyeOff, Lock, ArrowLeft } from 'lucide-react'
 import styles from './PatientRegisterPage.module.css'
 import logo from '../assets/logo2.png'
+import { authService } from '../services/authService'
 
 function getStrength(pw) {
     let score = 0
@@ -24,15 +25,43 @@ export default function PatientRegisterPage({ onBack, onLogin, onConfirm }) {
     const [acceptCGU, setAcceptCGU] = useState(false)
     const [acceptPrivacy, setAcceptPrivacy] = useState(false)
     const [acceptShare, setAcceptShare] = useState(false)
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const strength = useMemo(() => getStrength(form.password), [form.password])
 
     const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log('Patient register:', form)
-        onConfirm && onConfirm()
+        if (form.password !== form.confirmPassword) {
+            setError('Les mots de passe ne correspondent pas')
+            return
+        }
+
+        setLoading(true)
+        setError('')
+
+        try {
+            const data = await authService.register({
+                email: form.email,
+                password: form.password,
+                firstName: form.prenom,
+                lastName: form.nom,
+                telephone: form.tel,
+                birthDate: form.dob
+            })
+
+            if (data.success) {
+                onConfirm && onConfirm()
+            } else {
+                setError(data.message || 'Erreur lors de l\'inscription')
+            }
+        } catch (err) {
+            setError('Une erreur est survenue')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (

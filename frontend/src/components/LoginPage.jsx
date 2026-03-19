@@ -2,19 +2,32 @@ import { useState } from 'react'
 import styles from './LoginPage.module.css'
 import logo from '../assets/logo2.png'
 import doctorImg from '../assets/doctor.png'
+import { authService } from '../services/authService'
 
-export default function LoginPage({ onClose, onRegister, onDoctorLogin, onPatientLogin }) {
+export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
     const [role, setRole] = useState('patient')
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        if (role === 'medecin') {
-            onDoctorLogin && onDoctorLogin()
-        } else {
-            onPatientLogin && onPatientLogin()
+        setLoading(true)
+        setError('')
+        
+        try {
+            const data = await authService.login(email, password)
+            if (data.token) {
+                onLoginSuccess && onLoginSuccess()
+            } else {
+                setError('Identifiants invalides')
+            }
+        } catch (err) {
+            setError('Une erreur est survenue lors de la connexion')
+        } finally {
+            setLoading(false)
         }
     }
 

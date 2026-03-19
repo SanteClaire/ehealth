@@ -1,0 +1,51 @@
+services:
+  database:
+    image: mysql:8.0
+    container_name: santeclaire_db
+    environment:
+      MYSQL_DATABASE: santeclaire
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: santeclaire_pma
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: database
+    depends_on:
+      - database
+
+  backend:
+    build:
+      context: ./backend
+    container_name: santeclaire_backend
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8000:80"
+    environment:
+      DATABASE_URL: "mysql://root:root@database:3306/santeclaire?serverVersion=8.0.32&charset=utf8mb4"
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: santeclaire_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Volume anonyme pour garder les node_modules du conteneur
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: "http://localhost:8000/api"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

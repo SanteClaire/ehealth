@@ -1,12 +1,10 @@
-import { CheckCircle2, FileText, Upload, Shield, Calendar, ArrowRight } from 'lucide-react'
+import { CircleCheck, Mail, Folder, Bot, ArrowRight } from 'lucide-react'
 import styles from './PatientConfirmPage.module.css'
 import logo from '../assets/logo2.png'
 
 export default function PatientConfirmPage({ onDashboard }) {
-
     return (
         <div className={styles.page}>
-
             {/* ── Logo ── */}
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.logo} />
@@ -16,7 +14,7 @@ export default function PatientConfirmPage({ onDashboard }) {
             <div className={styles.stepper}>
                 <div className={styles.step}>
                     <span className={styles.stepCheck}>
-                        <CheckCircle2 size={16} color="#fff" strokeWidth={3} /> {/* Changed Check to CheckCircle2 based on instruction's import */}
+                        <CircleCheck size={16} color="#fff" strokeWidth={3} />
                     </span>
                     <div>
                         <span className={styles.stepLabel}>ÉTAPE 1/2 : VOS</span>
@@ -34,15 +32,13 @@ export default function PatientConfirmPage({ onDashboard }) {
 
             {/* ── Card ── */}
             <main className={styles.card}>
-                {/* Success icon */}
                 <div className={styles.successIcon}>
-                    <CheckCircle2 size={48} color="#fff" strokeWidth={2.5} />
+                    <CircleCheck size={48} color="#fff" strokeWidth={2.5} />
                 </div>
 
                 <h1 className={styles.heading}>Félicitations, votre compte<br />est créé !</h1>
                 <p className={styles.subheading}>Bienvenue sur SantéClaire, votre espace santé sécurisé.</p>
 
-                {/* Steps */}
                 <div className={styles.steps}>
                     <div className={styles.stepItem}>
                         <span className={styles.stepItemIcon}><Mail size={22} /></span>
@@ -52,7 +48,7 @@ export default function PatientConfirmPage({ onDashboard }) {
                         </div>
                     </div>
                     <div className={styles.stepItem}>
-                        <span className={styles.stepItemIcon}><FolderOpen size={22} /></span>
+                        <span className={styles.stepItemIcon}><Folder size={22} /></span>
                         <div>
                             <strong className={styles.stepItemTitle}>Complétez votre dossier</strong>
                             <p className={styles.stepItemDesc}>Commencez à uploader vos premiers documents pour centraliser votre santé.</p>
@@ -68,11 +64,10 @@ export default function PatientConfirmPage({ onDashboard }) {
                 </div>
 
                 <button className={styles.btnDashboard} onClick={onDashboard}>
-                    Accéder à mon tableau de bord &nbsp;→
+                    Accéder à mon tableau de bord &nbsp;<ArrowRight size={18} />
                 </button>
             </main>
 
-            {/* ── Footer ── */}
             <p className={styles.footer}>
                 Besoin d'aide ? <a href="#" className={styles.supportLink}>Contactez notre support</a>
             </p>

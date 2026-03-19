@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Eye, EyeOff, Hospital, Info, ArrowLeft } from 'lucide-react'
 import styles from './DoctorRegisterPage.module.css'
 import logo from '../assets/logo2.png'
+import { authService } from '../services/authService'
 
 const SPECIALTIES = [
     'Médecine générale', 'Cardiologie', 'Dermatologie', 'Endocrinologie',
@@ -27,15 +28,45 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
         prenom: '', nom: '', email: '', tel: '', dob: '',
         specialty: '', rpps: '', password: '', confirmPassword: ''
     })
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
     const [showPw, setShowPw] = useState(false)
     const strength = useMemo(() => getStrength(form.password), [form.password])
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log('Doctor register step 1:', form)
-        onConfirm && onConfirm()
+        if (form.password !== form.confirmPassword) {
+            setError('Les mots de passe ne correspondent pas')
+            return
+        }
+
+        setLoading(true)
+        setError('')
+
+        try {
+            const data = await authService.register({
+                role: 'medecin',
+                email: form.email,
+                password: form.password,
+                firstName: form.prenom,
+                lastName: form.nom,
+                telephone: form.tel,
+                specialite: form.specialty,
+                rpps: form.rpps
+            })
+
+            if (data.success) {
+                onConfirm && onConfirm()
+            } else {
+                setError(data.message || 'Erreur lors de l\'inscription')
+            }
+        } catch (err) {
+            setError('Une erreur est survenue')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (

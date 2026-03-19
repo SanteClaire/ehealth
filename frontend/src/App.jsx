@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useFadeIn } from './hooks/useFadeIn'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -26,8 +26,12 @@ import DoctorPatientOverviewPage from './components/DoctorPatientOverviewPage'
 import DoctorSchedulePage from './components/DoctorSchedulePage'
 import DoctorSettingsPage from './components/DoctorSettingsPage'
 import DoctorMessagesPage from './components/DoctorMessagesPage'
+import { authService } from './services/authService'
 
 export default function App() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  
   const [showLogin, setShowLogin] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [showPatientRegister, setShowPatientRegister] = useState(false)
@@ -46,6 +50,36 @@ export default function App() {
   const [showDoctorSchedule, setShowDoctorSchedule] = useState(false)
   const [showDoctorSettings, setShowDoctorSettings] = useState(false)
   const [showDoctorMessages, setShowDoctorMessages] = useState(false)
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const data = await authService.getMe()
+      if (data && data.success) {
+        setUser(data.data)
+        // Redirection auto selon le rôle
+        if (data.data.roles.includes('ROLE_MEDECIN')) {
+          setShowDoctorDashboard(true)
+        } else {
+          // Pour le moment on peut imaginer un PatientDashboard
+          setShowPatientConfirm(true) 
+        }
+      }
+    } catch (err) {
+      console.error('Auth check failed', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    authService.logout()
+    setUser(null)
+    resetAll()
+  }
 
   const resetAll = () => {
     setShowLogin(false)
@@ -67,6 +101,11 @@ export default function App() {
     setShowDoctorMessages(false)
   }
 
+  const onLoginSuccess = () => {
+    setShowLogin(false)
+    checkAuth()
+  }
+
   useFadeIn()
 
   // --- Handlers globaux de navigation pour la sidebar Docteur ---
@@ -80,10 +119,12 @@ export default function App() {
     if (dest === 'settings') setShowDoctorSettings(true)
   }
 
+  if (loading) return null // Ou un loader
+
   if (showPatientConfirm) {
     return (
       <PatientConfirmPage
-        onDashboard={resetAll}
+        onDashboard={handleLogout}
       />
     )
   }
