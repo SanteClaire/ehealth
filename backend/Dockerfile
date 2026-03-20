@@ -3,9 +3,10 @@ FROM php:8.3-apache
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
+    libpq-dev \
     zip \
     unzip \
-    && docker-php-ext-install intl pdo_mysql zip opcache
+    && docker-php-ext-install intl pdo_pgsql zip opcache
 
 RUN a2enmod rewrite
 

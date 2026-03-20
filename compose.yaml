@@ -1,22 +1,24 @@
 services:
   database:
-    image: mysql:8.0
+    image: postgres:16-alpine
     container_name: santeclaire_db
     environment:
-      MYSQL_DATABASE: santeclaire
-      MYSQL_ROOT_PASSWORD: root
+      POSTGRES_DB: santeclaire
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: root
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: santeclaire_pma
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: santeclaire_pgadmin
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: database
+      PGADMIN_DEFAULT_EMAIL: admin@santeclaire.fr
+      PGADMIN_DEFAULT_PASSWORD: admin
     depends_on:
       - database
 
@@ -29,7 +31,7 @@ services:
     ports:
       - "8000:80"
     environment:
-      DATABASE_URL: "mysql://root:root@database:3306/santeclaire?serverVersion=8.0.32&charset=utf8mb4"
+      DATABASE_URL: "postgresql://app:root@database:5432/santeclaire?serverVersion=16&charset=utf8"
     depends_on:
       - database
 
@@ -39,7 +41,7 @@ services:
     container_name: santeclaire_frontend
     volumes:
       - ./frontend:/app
-      - /app/node_modules  # Volume anonyme pour garder les node_modules du conteneur
+      - /app/node_modules
     ports:
       - "5173:5173"
     environment:
