@@ -17,6 +17,18 @@ class ExceptionSubscriber implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
+        $request = $event->getRequest();
+        
+        // Ne pas intercepter les routes admin (EasyAdmin doit afficher ses propres erreurs HTML)
+        if (str_starts_with($request->getPathInfo(), '/admin')) {
+            return;
+        }
+        
+        // Seulement pour les routes API, retourner du JSON
+        if (!str_starts_with($request->getPathInfo(), '/api')) {
+            return;
+        }
+        
         $exception = $event->getThrowable();
         $status = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : 500;
 
