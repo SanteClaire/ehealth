@@ -13,6 +13,7 @@ import LoginPage from './components/LoginPage'
 import RegisterPage from './components/RegisterPage'
 import PatientRegisterPage from './components/PatientRegisterPage'
 import PatientConfirmPage from './components/PatientConfirmPage'
+import PatientDashboard from './components/PatientDashboard'
 import DoctorRegisterPage from './components/DoctorRegisterPage'
 import DoctorExercicePage from './components/DoctorExercicePage'
 import DoctorDocumentsPage from './components/DoctorDocumentsPage'
@@ -36,6 +37,7 @@ export default function App() {
   const [showRegister, setShowRegister] = useState(false)
   const [showPatientRegister, setShowPatientRegister] = useState(false)
   const [showPatientConfirm, setShowPatientConfirm] = useState(false)
+  const [showPatientDashboard, setShowPatientDashboard] = useState(false)
   const [showDoctorRegister, setShowDoctorRegister] = useState(false)
   const [showDoctorExercice, setShowDoctorExercice] = useState(false)
   const [showDoctorDocuments, setShowDoctorDocuments] = useState(false)
@@ -64,8 +66,8 @@ export default function App() {
         if (data.data.roles.includes('ROLE_MEDECIN')) {
           setShowDoctorDashboard(true)
         } else {
-          // Pour le moment on peut imaginer un PatientDashboard
-          setShowPatientConfirm(true) 
+          // Patient dashboard
+          setShowPatientDashboard(true) 
         }
       }
     } catch (err) {
@@ -86,6 +88,7 @@ export default function App() {
     setShowRegister(false)
     setShowPatientRegister(false)
     setShowPatientConfirm(false)
+    setShowPatientDashboard(false)
     setShowDoctorRegister(false)
     setShowDoctorExercice(false)
     setShowDoctorDocuments(false)
@@ -121,10 +124,19 @@ export default function App() {
 
   if (loading) return null // Ou un loader
 
+  if (showPatientDashboard) {
+    return (
+      <PatientDashboard
+        user={user}
+        onLogout={handleLogout}
+      />
+    )
+  }
+
   if (showPatientConfirm) {
     return (
       <PatientConfirmPage
-        onDashboard={handleLogout}
+        onDashboard={() => { setShowPatientConfirm(false); setShowPatientDashboard(true) }}
       />
     )
   }

@@ -7,10 +7,10 @@ use App\Enum\TypeDocument;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class DocumentMedicalCrudController extends AbstractCrudController
@@ -25,24 +25,27 @@ class DocumentMedicalCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Document médical')
             ->setEntityLabelInPlural('Documents médicaux')
-            ->setDefaultSort(['dateUpload' => 'DESC']);
+            ->setDefaultSort(['id' => 'DESC']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield AssociationField::new('dossier');
+        yield AssociationField::new('patient');
         yield TextField::new('nomFichier', 'Nom du fichier');
-        yield ChoiceField::new('typeDocument', 'Type')
+        yield TextField::new('nomOriginal', 'Nom original')->hideOnIndex();
+        yield ChoiceField::new('type', 'Type')
             ->setChoices([
                 'Ordonnance' => TypeDocument::ORDONNANCE,
                 'Analyse' => TypeDocument::ANALYSE,
-                'Radiologie' => TypeDocument::RADIOLOGIE,
+                'Radiographie' => TypeDocument::RADIOGRAPHIE,
                 'Compte-rendu' => TypeDocument::COMPTE_RENDU,
                 'Certificat' => TypeDocument::CERTIFICAT,
                 'Autre' => TypeDocument::AUTRE,
             ]);
-        yield DateTimeField::new('dateUpload', 'Date d\'upload');
-        yield TextareaField::new('description')->hideOnIndex();
+        yield TextField::new('mimeType', 'Type MIME')->hideOnIndex();
+        yield IntegerField::new('taille', 'Taille (octets)')->hideOnIndex();
+        yield BooleanField::new('estConfidentiel', 'Confidentiel');
+        yield BooleanField::new('estPartage', 'Partagé');
     }
 }

@@ -6,9 +6,9 @@ use App\Entity\Dossier;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class DossierCrudController extends AbstractCrudController
 {
@@ -22,16 +22,15 @@ class DossierCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Dossier médical')
             ->setEntityLabelInPlural('Dossiers médicaux')
-            ->setDefaultSort(['dateCreation' => 'DESC']);
+            ->setDefaultSort(['nom' => 'ASC']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
         yield AssociationField::new('patient');
-        yield DateTimeField::new('dateCreation', 'Date de création');
-        yield DateTimeField::new('dateDerniereModification', 'Dernière modification');
-        yield TextareaField::new('antecedentsMedicaux', 'Antécédents médicaux')->hideOnIndex();
-        yield TextareaField::new('allergies')->hideOnIndex();
+        yield TextField::new('nom', 'Nom du dossier');
+        yield TextareaField::new('description')->hideOnIndex();
+        yield TextField::new('lienParents', 'Lien parents')->hideOnIndex();
     }
 }

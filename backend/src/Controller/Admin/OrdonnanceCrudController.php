@@ -6,10 +6,10 @@ use App\Entity\Ordonnance;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class OrdonnanceCrudController extends AbstractCrudController
 {
@@ -23,16 +23,17 @@ class OrdonnanceCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Ordonnance')
             ->setEntityLabelInPlural('Ordonnances')
-            ->setDefaultSort(['dateCreation' => 'DESC']);
+            ->setDefaultSort(['dateEmission' => 'DESC']);
     }
 
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield AssociationField::new('consultation');
-        yield DateField::new('dateCreation', 'Date de création');
+        yield TextField::new('numero', 'Numéro');
+        yield AssociationField::new('patient');
+        yield AssociationField::new('medecin', 'Médecin');
+        yield DateField::new('dateEmission', 'Date d\'émission')->hideOnForm();
         yield DateField::new('dateExpiration', 'Date d\'expiration');
-        yield BooleanField::new('estRenouvellable', 'Renouvelable');
-        yield TextareaField::new('instructionsSpeciales', 'Instructions')->hideOnIndex();
+        yield TextareaField::new('instructions', 'Instructions')->hideOnIndex();
     }
 }

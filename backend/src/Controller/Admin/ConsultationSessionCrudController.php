@@ -6,10 +6,9 @@ use App\Entity\ConsultationSession;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ConsultationSessionCrudController extends AbstractCrudController
 {
@@ -23,7 +22,7 @@ class ConsultationSessionCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Consultation')
             ->setEntityLabelInPlural('Consultations')
-            ->setDefaultSort(['dateConsultation' => 'DESC']);
+            ->setDefaultSort(['dateDebut' => 'DESC']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -31,9 +30,8 @@ class ConsultationSessionCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield AssociationField::new('patient');
         yield AssociationField::new('medecin', 'Médecin');
-        yield DateTimeField::new('dateConsultation', 'Date');
-        yield TextField::new('motif');
-        yield TextareaField::new('notes')->hideOnIndex();
-        yield TextareaField::new('diagnostic')->hideOnIndex();
+        yield DateTimeField::new('dateDebut', 'Date de début');
+        yield DateTimeField::new('dateFin', 'Date de fin')->hideOnIndex();
+        yield BooleanField::new('estActive', 'Active');
     }
 }

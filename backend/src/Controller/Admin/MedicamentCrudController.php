@@ -38,9 +38,13 @@ class MedicamentCrudController extends AbstractCrudController
                 'Comprimé' => FormatMedicament::COMPRIME,
                 'Gélule' => FormatMedicament::GELULE,
                 'Sirop' => FormatMedicament::SIROP,
-                'Injectable' => FormatMedicament::INJECTABLE,
-                'Crème' => FormatMedicament::CREME,
+                'Injection' => FormatMedicament::INJECTION,
+                'Pommade' => FormatMedicament::POMMADE,
+                'Collyre' => FormatMedicament::COLLYRE,
                 'Suppositoire' => FormatMedicament::SUPPOSITOIRE,
+                'Patch' => FormatMedicament::PATCH,
+                'Spray' => FormatMedicament::SPRAY,
+                'Autre' => FormatMedicament::AUTRE,
             ]);
         yield TextField::new('codeATC', 'Code ATC');
         yield BooleanField::new('estGenerique', 'Générique');

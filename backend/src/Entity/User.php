@@ -38,6 +38,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     protected ?string $password = null;
 
+    /**
+     * Plain password for form handling (not persisted)
+     */
+    protected ?string $plainPassword = null;
+
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank]
     #[Groups(['user:read', 'user:write'])]
@@ -77,7 +82,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): self { $this->roles = $roles; return $this; }
     public function getPassword(): ?string { return $this->password; }
     public function setPassword(string $password): self { $this->password = $password; return $this; }
-    public function eraseCredentials(): void {}
+    public function getPlainPassword(): ?string { return $this->plainPassword; }
+    public function setPlainPassword(?string $plainPassword): self { $this->plainPassword = $plainPassword; return $this; }
+    public function eraseCredentials(): void { $this->plainPassword = null; }
     public function getFirstName(): ?string { return $this->firstName; }
     public function setFirstName(string $firstName): self { $this->firstName = $firstName; return $this; }
     public function getLastName(): ?string { return $this->lastName; }
