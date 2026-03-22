@@ -15,8 +15,11 @@ const navItems = [
     { icon: BarChart2, label: 'Rapports', id: 'reports' },
 ]
 
-export default function DoctorSettingsPage({ onNavigate, onLogout }) {
+export default function DoctorSettingsPage({ user, onNavigate, onLogout }) {
     const [activeTab, setActiveTab] = useState('profile') // profile, security, notifications, billing
+    
+    // Initiales pour l'avatar
+    const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : 'DR'
 
     return (
         <div className={styles.layout}>
@@ -104,7 +107,7 @@ export default function DoctorSettingsPage({ onNavigate, onLogout }) {
                                 </div>
                                 <div className={styles.cardBody}>
                                     <div className={styles.avatarSection}>
-                                        <div className={styles.avatarCircle}>DS</div>
+                                        <div className={styles.avatarCircle}>{initials}</div>
                                         <div className={styles.avatarActions}>
                                             <button className={styles.btnPrimary}>Changer la photo</button>
                                             <button className={styles.btnText}>Supprimer</button>
@@ -121,19 +124,19 @@ export default function DoctorSettingsPage({ onNavigate, onLogout }) {
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Nom Complet</label>
-                                            <input type="text" className={styles.input} defaultValue="Dupont" />
+                                            <input type="text" className={styles.input} defaultValue={user ? `${user.firstName} ${user.lastName}` : ''} />
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Spécialité</label>
-                                            <input type="text" className={styles.input} defaultValue="Cardiologue" />
+                                            <input type="text" className={styles.input} defaultValue={user?.specialite || ''} />
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Numéro RPPS</label>
-                                            <input type="text" className={styles.input} defaultValue="10001234567" disabled />
+                                            <input type="text" className={styles.input} defaultValue={user?.numeroRPPS || ''} disabled />
                                         </div>
                                         <div className={styles.formGroupFull}>
                                             <label>Adresse du cabinet</label>
-                                            <textarea className={styles.inputArea} defaultValue="12 Rue de la Paix, 75002 Paris"></textarea>
+                                            <textarea className={styles.inputArea} defaultValue={user?.adresseCabinet || ''}></textarea>
                                         </div>
                                     </div>
 

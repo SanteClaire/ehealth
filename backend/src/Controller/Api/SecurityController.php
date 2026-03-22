@@ -84,12 +84,22 @@ class SecurityController extends AbstractApiController
             return $this->apiResponse(false, null, 'Not authenticated', [], [], 401);
         }
 
-        return $this->apiResponse(true, [
+        $data = [
             'id' => $user->getId(),
             'email' => $user->getEmail(),
             'firstName' => $user->getFirstName(),
             'lastName' => $user->getLastName(),
             'roles' => $user->getRoles(),
-        ], 'Current user profile');
+        ];
+
+        // Ajouter les champs spécifiques Medecin
+        if ($user instanceof \App\Entity\Medecin) {
+            $data['numeroRPPS'] = $user->getNumeroRPPS();
+            $data['specialite'] = $user->getSpecialite();
+            $data['adresseCabinet'] = $user->getAdresseCabinet();
+            $data['telephoneCabinet'] = $user->getTelephoneCabinet();
+        }
+
+        return $this->apiResponse(true, $data, 'Current user profile');
     }
 }

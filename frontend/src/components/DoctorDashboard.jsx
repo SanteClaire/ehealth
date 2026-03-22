@@ -88,8 +88,9 @@ const files = [
     { icon: FileText, color: '#8B5CF6', name: 'Chest_XRay_Morgan_A...', patient: 'ARTHUR MORGAN', time: '5H AGO', actionType: 'view' },
 ]
 
-export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
-    const today = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '')
+export default function DoctorDashboard({ user, onLogout, onPatients, onNavigate }) {
+    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+    const doctorName = user ? `Dr. ${user.firstName} ${user.lastName}` : 'Dr.'
 
     return (
         <div className={styles.layout}>
@@ -122,7 +123,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                     <div className={styles.doctorInfo}>
                         <div className={styles.doctorAvatar}>Dr</div>
                         <div>
-                            <div className={styles.doctorName}>Dr. Claire</div>
+                            <div className={styles.doctorName}>{doctorName}</div>
                             <div className={styles.doctorStatus}>
                                 <span className={styles.statusDot} />
                                 EN SERVICE
@@ -153,7 +154,7 @@ export default function DoctorDashboard({ onLogout, onPatients, onNavigate }) {
                         <button className={styles.iconBtn}><Plus size={17} /></button>
                         <div className={styles.dateBlock}>
                             <span className={styles.dateLabel}>DATE DU JOUR</span>
-                            <span className={styles.dateValue}>Oct 24, 2023</span>
+                            <span className={styles.dateValue}>{today}</span>
                         </div>
                     </div>
                 </header>

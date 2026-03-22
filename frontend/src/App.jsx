@@ -199,7 +199,7 @@ export default function App() {
   }
 
   if (showDoctorSettings) {
-    return <DoctorSettingsPage onNavigate={handleDoctorNav} onLogout={resetAll} />
+    return <DoctorSettingsPage user={user} onNavigate={handleDoctorNav} onLogout={handleLogout} />
   }
 
   if (showDoctorMessages) {
@@ -209,8 +209,9 @@ export default function App() {
   if (showDoctorDashboard) {
     return (
       <DoctorDashboard
+        user={user}
         onNavigate={handleDoctorNav}
-        onLogout={resetAll}
+        onLogout={handleLogout}
         onPatients={() => { setShowDoctorDashboard(false); setShowDoctorPatients(true) }}
       />
     )
