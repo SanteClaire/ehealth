@@ -184,6 +184,30 @@ export function getOrdonnancePdfUrl(ordonnanceId) {
     return `${API_URL}/ordonnance/${ordonnanceId}/pdf`
 }
 
+export async function downloadCompteRenduPdf(patientId) {
+    const token = getToken()
+    const res = await fetch(`${API_URL}/medecin/patient/${patientId}/compte-rendu`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) throw new Error('Erreur lors de la génération')
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `CompteRendu_patient_${patientId}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+}
+
+export async function savePatientNote(patientId, note) {
+    return apiFetch(`/medecin/patient/${patientId}/note`, {
+        method: 'POST',
+        body: JSON.stringify({ note }),
+    })
+}
+
 export async function downloadOrdonnancePdf(ordonnanceId) {
     const token = getToken()
     const res = await fetch(`${API_URL}/ordonnance/${ordonnanceId}/pdf`, {

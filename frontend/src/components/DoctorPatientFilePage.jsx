@@ -5,7 +5,7 @@ import {
     Lock, ChevronRight, Settings, User,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchMedecinPatientDetail, createOrdonnance, fetchMedecinPatients } from '../services/api'
+import { fetchMedecinPatientDetail, createOrdonnance, downloadCompteRenduPdf, savePatientNote } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorPatientFilePage.module.css'
 import logo from '../assets/logo.png'
@@ -29,6 +29,9 @@ export default function DoctorPatientFilePage({ patientId, onBack, onPatients, o
     const [loading, setLoading] = useState(true)
     const [showOrdonnanceForm, setShowOrdonnanceForm] = useState(false)
     const [ordForm, setOrdForm] = useState({ dateExpiration: '', instructions: '' })
+    const [showNoteForm, setShowNoteForm] = useState(false)
+    const [noteText, setNoteText] = useState('')
+    const [noteSaving, setNoteSaving] = useState(false)
 
     useEffect(() => {
         if (!patientId) { setLoading(false); return }
@@ -293,15 +296,43 @@ export default function DoctorPatientFilePage({ patientId, onBack, onPatients, o
                         <div className={styles.sideCard}>
                             <h3 className={styles.sideCardTitle}>Outils de consultation</h3>
                             <div className={styles.toolsGrid}>
-                                <button className={styles.toolBtn}>
+                                <button className={styles.toolBtn} onClick={() => setShowNoteForm(!showNoteForm)}>
                                     <Mic size={18} />
                                     <span>Enregistrer note</span>
                                 </button>
-                                <button className={`${styles.toolBtn} ${styles.toolBtnPrimary}`}>
+                                <button className={`${styles.toolBtn} ${styles.toolBtnPrimary}`} onClick={() => downloadCompteRenduPdf(patientId)}>
                                     <FileText size={18} />
                                     <span>Générer compte-rendu</span>
                                 </button>
                             </div>
+                            {showNoteForm && (
+                                <div style={{ marginTop: 10 }}>
+                                    <textarea
+                                        value={noteText}
+                                        onChange={e => setNoteText(e.target.value)}
+                                        placeholder="Saisissez vos observations cliniques..."
+                                        style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 8, border: '1px solid #D1D5DB', fontSize: '0.85rem', resize: 'vertical' }}
+                                    />
+                                    <button
+                                        onClick={async () => {
+                                            if (!noteText.trim()) return
+                                            setNoteSaving(true)
+                                            const result = await savePatientNote(patientId, noteText)
+                                            setNoteSaving(false)
+                                            if (result.success) {
+                                                alert('Note enregistrée avec succès !')
+                                                setNoteText('')
+                                                setShowNoteForm(false)
+                                                fetchMedecinPatientDetail(patientId).then(r => { if (r.success) setPatient(r.data) })
+                                            }
+                                        }}
+                                        disabled={noteSaving}
+                                        style={{ marginTop: 6, padding: '6px 16px', background: '#0EA5B0', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: '0.85rem' }}
+                                    >
+                                        {noteSaving ? 'Enregistrement...' : 'Sauvegarder la note'}
+                                    </button>
+                                </div>
+                            )}
                             <button className={styles.btnSign} onClick={() => setShowModal(true)}>Réviser & Signer</button>
                         </div>
 
