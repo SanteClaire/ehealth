@@ -9,6 +9,7 @@ use App\Entity\DocumentMedical;
 use App\Entity\Ordonnance;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api')]
@@ -17,6 +18,43 @@ class ConsultationController extends AbstractApiController
     public function __construct(
         private EntityManagerInterface $em
     ) {}
+
+    #[Route('/medecin/consultation', name: 'api_medecin_consultation_create', methods: ['POST'])]
+    public function createConsultation(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!$data || !isset($data['patientId'], $data['dateDebut'])) {
+            return $this->apiResponse(false, null, 'patientId et dateDebut requis', [], [], 400);
+        }
+
+        $patient = $this->em->getRepository(Patient::class)->find($data['patientId']);
+        if (!$patient) {
+            return $this->apiResponse(false, null, 'Patient non trouvé', [], [], 404);
+        }
+
+        $consultation = new ConsultationSession();
+        $consultation->setMedecin($user);
+        $consultation->setPatient($patient);
+        $consultation->setDateDebut(new \DateTimeImmutable($data['dateDebut']));
+        if (!empty($data['dateFin'])) {
+            $consultation->setDateFin(new \DateTimeImmutable($data['dateFin']));
+        }
+        $consultation->setEstActive($data['estActive'] ?? false);
+
+        $this->em->persist($consultation);
+        $this->em->flush();
+
+        return $this->apiResponse(true, [
+            'id' => $consultation->getId(),
+            'dateDebut' => $consultation->getDateDebut()->format('Y-m-d H:i:s'),
+            'patient' => $patient->getFirstName() . ' ' . $patient->getLastName(),
+        ], 'Consultation créée', [], [], 201);
+    }
 
     /**
      * Get consultations for the logged-in patient

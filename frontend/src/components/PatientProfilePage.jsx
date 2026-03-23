@@ -5,6 +5,7 @@ import {
     User, Phone, Mail, MapPin, Heart, Clock,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
+import { updateProfile } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientProfilePage.module.css'
 import logo from '../assets/logo.png'
@@ -47,13 +48,16 @@ export default function PatientProfilePage({ user, onLogout, onNavigate }) {
     const [doctorCity, setDoctorCity] = useState('')
     const [doctorPhone, setDoctorPhone] = useState('')
 
-    const handleSave = () => {
-        console.log('Profil sauvegardé:', {
-            firstName, lastName, dateOfBirth, bloodType,
-            email, phone, address, city,
-            emergencyName, emergencyRelation, emergencyPhone,
-            doctorName, doctorCity, doctorPhone,
+    const handleSave = async () => {
+        const result = await updateProfile({
+            firstName, lastName,
+            telephone: phone,
+            adresse: address,
+            groupeSanguin: bloodType,
         })
+        if (result.success) {
+            alert('Profil sauvegardé avec succès !')
+        }
         setIsEditing(false)
     }
 

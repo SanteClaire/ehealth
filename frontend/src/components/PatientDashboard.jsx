@@ -5,7 +5,7 @@ import {
     AlertCircle, Clock, Mail, FolderOpen, Bot,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchPatientStats, fetchPatientConsultations, fetchPatientDocuments, fetchPatientOrdonnances, downloadOrdonnancePdf } from '../services/api'
+import { fetchPatientStats, fetchPatientConsultations, fetchPatientDocuments, fetchPatientOrdonnances, downloadOrdonnancePdf, uploadPatientDocument } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientDashboard.module.css'
 import logo from '../assets/logo.png'
@@ -76,11 +76,14 @@ export default function PatientDashboard({ user, onLogout, onNavigate }) {
         onLogout && onLogout()
     }
 
-    const handleFilesSelected = (e) => {
+    const handleFilesSelected = async (e) => {
         const files = e.target.files
-        if (files?.length) {
-            console.info('[SantéClaire] Fichiers sélectionnés pour import :', [...files].map((f) => f.name))
+        if (!files?.length) return
+        for (const file of [...files]) {
+            await uploadPatientDocument(file, 'AUTRE', true)
         }
+        // Refresh documents
+        fetchPatientDocuments().then(r => r.success && setDocuments(r.data))
         e.target.value = ''
     }
 

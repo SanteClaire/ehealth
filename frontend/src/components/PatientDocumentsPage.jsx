@@ -5,7 +5,7 @@ import {
     FileCheck, Lock, Trash2, Download, MoreVertical, Plus, Cloud,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchPatientDocuments } from '../services/api'
+import { fetchPatientDocuments, uploadPatientDocument } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientDocumentsPage.module.css'
 import logo from '../assets/logo.png'
@@ -62,31 +62,37 @@ export default function PatientDocumentsPage({ user, onLogout, onNavigate, onBac
     const fileInputRef = useRef(null)
     const [uploadCountNotice, setUploadCountNotice] = useState(null)
 
-    const addFilesToList = (fileList) => {
+    const addFilesToList = async (fileList) => {
         if (!fileList?.length) return
         const files = [...fileList]
-        const baseId = Date.now()
-        const newRows = files.map((file, i) => {
-            const baseName = file.name.replace(/\.[^/.]+$/, '') || file.name
-            return {
-                id: baseId + i,
-                name: baseName,
-                size: formatFileSize(file.size),
-                category: guessCategoryFromName(file.name),
-                categoryIcon: 'doc',
-                date: new Date().toLocaleDateString(language === 'en' ? 'en-GB' : 'fr-FR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                }),
-                statusType: 'shared',
-                doctor: 'Dr. Smith',
-                consultation: 'RDV 24 Oct 2023',
+        let uploadedCount = 0
+
+        for (const file of files) {
+            const ext = file.name.toLowerCase().split('.').pop()
+            const typeMap = { pdf: 'AUTRE', jpg: 'RADIOGRAPHIE', jpeg: 'RADIOGRAPHIE', png: 'RADIOGRAPHIE' }
+            const type = typeMap[ext] || 'AUTRE'
+
+            const result = await uploadPatientDocument(file, type, true)
+            if (result.success) {
+                uploadedCount++
+                setDocuments(prev => [{
+                    id: result.data.id,
+                    name: result.data.nomOriginal,
+                    size: formatSize(result.data.taille),
+                    category: mapTypeToCategory(result.data.type),
+                    categoryIcon: 'doc',
+                    date: new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    statusType: 'shared',
+                    doctor: '',
+                    consultation: '',
+                }, ...prev])
             }
-        })
-        setDocuments((prev) => [...newRows, ...prev])
-        setUploadCountNotice(files.length)
-        window.setTimeout(() => setUploadCountNotice(null), 5000)
+        }
+
+        if (uploadedCount > 0) {
+            setUploadCountNotice(uploadedCount)
+            window.setTimeout(() => setUploadCountNotice(null), 5000)
+        }
         if (fileInputRef.current) fileInputRef.current.value = ''
     }
 

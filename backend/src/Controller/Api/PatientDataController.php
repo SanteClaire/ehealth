@@ -6,8 +6,10 @@ use App\Entity\Patient;
 use App\Entity\DocumentMedical;
 use App\Entity\Ordonnance;
 use App\Entity\Dossier;
+use App\Enum\TypeDocument;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api')]
@@ -48,6 +50,57 @@ class PatientDataController extends AbstractApiController
         ], $documents);
 
         return $this->apiResponse(true, $data, 'Patient documents');
+    }
+
+    #[Route('/patient/documents/upload', name: 'api_patient_document_upload', methods: ['POST'])]
+    public function uploadDocument(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Patient) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $file = $request->files->get('file');
+        if (!$file) {
+            return $this->apiResponse(false, null, 'Aucun fichier envoyé', [], [], 400);
+        }
+
+        $typeStr = $request->request->get('type', 'AUTRE');
+        try {
+            $type = TypeDocument::from($typeStr);
+        } catch (\ValueError $e) {
+            $type = TypeDocument::AUTRE;
+        }
+
+        $originalName = $file->getClientOriginalName();
+        $mimeType = $file->getMimeType() ?? 'application/octet-stream';
+        $size = $file->getSize();
+        $safeName = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $originalName);
+
+        // Store file
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/var/uploads';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        $file->move($uploadDir, $safeName);
+
+        $doc = new DocumentMedical();
+        $doc->setNomFichier($safeName);
+        $doc->setNomOriginal(pathinfo($originalName, PATHINFO_FILENAME) ?: $originalName);
+        $doc->setType($type);
+        $doc->setMimeType($mimeType);
+        $doc->setTaille($size);
+        $doc->setPatient($user);
+        $doc->setEstConfidentiel(false);
+        $doc->setEstPartage($request->request->get('partage', '1') === '1');
+
+        $this->em->persist($doc);
+        $this->em->flush();
+
+        return $this->apiResponse(true, [
+            'id' => $doc->getId(),
+            'nomOriginal' => $doc->getNomOriginal(),
+            'type' => $doc->getType()->value,
+            'taille' => $doc->getTaille(),
+        ], 'Document uploadé avec succès', [], [], 201);
     }
 
     #[Route('/patient/ordonnances', name: 'api_patient_ordonnances', methods: ['GET'])]

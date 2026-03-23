@@ -9,8 +9,10 @@ use App\Entity\DocumentMedical;
 use App\Entity\Ordonnance;
 use App\Entity\Dossier;
 use App\Entity\LigneOrdonnance;
+use App\Entity\Medicament;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api')]
@@ -120,6 +122,98 @@ class MedecinDataController extends AbstractApiController
         ], $documents);
 
         return $this->apiResponse(true, $data, 'Doctor documents');
+    }
+
+    #[Route('/medecin/patients/search', name: 'api_medecin_patients_search', methods: ['GET'])]
+    public function searchPatients(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $query = $request->query->get('q', '');
+
+        $qb = $this->em->createQueryBuilder()
+            ->select('p')
+            ->from(Patient::class, 'p')
+            ->orderBy('p.lastName', 'ASC')
+            ->setMaxResults(20);
+
+        if ($query) {
+            $qb->where('LOWER(p.firstName) LIKE :q OR LOWER(p.lastName) LIKE :q OR LOWER(p.email) LIKE :q')
+               ->setParameter('q', '%' . strtolower($query) . '%');
+        }
+
+        $patients = $qb->getQuery()->getResult();
+
+        $data = array_map(fn($p) => [
+            'id' => $p->getId(),
+            'firstName' => $p->getFirstName(),
+            'lastName' => $p->getLastName(),
+            'email' => $p->getEmail(),
+            'telephone' => $p->getTelephone(),
+            'dateNaissance' => $p->getDateNaissance()?->format('Y-m-d'),
+        ], $patients);
+
+        return $this->apiResponse(true, $data, 'Search results');
+    }
+
+    #[Route('/medecin/ordonnance', name: 'api_medecin_ordonnance_create', methods: ['POST'])]
+    public function createOrdonnance(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!$data || !isset($data['patientId'], $data['dateExpiration'])) {
+            return $this->apiResponse(false, null, 'patientId et dateExpiration requis', [], [], 400);
+        }
+
+        $patient = $this->em->getRepository(Patient::class)->find($data['patientId']);
+        if (!$patient) {
+            return $this->apiResponse(false, null, 'Patient non trouvé', [], [], 404);
+        }
+
+        $numero = 'ORD-' . date('Y') . '-' . str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        $ordonnance = new Ordonnance();
+        $ordonnance->setNumero($numero);
+        $ordonnance->setDateExpiration(new \DateTime($data['dateExpiration']));
+        $ordonnance->setInstructions($data['instructions'] ?? null);
+        $ordonnance->setPatient($patient);
+        $ordonnance->setMedecin($user);
+
+        $this->em->persist($ordonnance);
+
+        // Add lignes if provided
+        if (!empty($data['lignes']) && is_array($data['lignes'])) {
+            foreach ($data['lignes'] as $ligneData) {
+                $medicament = null;
+                if (!empty($ligneData['medicamentId'])) {
+                    $medicament = $this->em->getRepository(Medicament::class)->find($ligneData['medicamentId']);
+                }
+                if (!$medicament) continue;
+
+                $ligne = new LigneOrdonnance();
+                $ligne->setOrdonnance($ordonnance);
+                $ligne->setMedicament($medicament);
+                $ligne->setQuantite($ligneData['quantite'] ?? 1);
+                $ligne->setPosologie($ligneData['posologie'] ?? '');
+                $ligne->setDuree($ligneData['duree'] ?? null);
+                $ligne->setInstructions($ligneData['instructions'] ?? null);
+                $this->em->persist($ligne);
+            }
+        }
+
+        $this->em->flush();
+
+        return $this->apiResponse(true, [
+            'id' => $ordonnance->getId(),
+            'numero' => $ordonnance->getNumero(),
+        ], 'Ordonnance créée', [], [], 201);
     }
 
     #[Route('/medecin/patient/{id}', name: 'api_medecin_patient_detail', methods: ['GET'])]

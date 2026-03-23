@@ -4,7 +4,7 @@ import {
     Filter, Play,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchMedecinPatients } from '../services/api'
+import { fetchMedecinPatients, searchPatients } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorPatientsPage.module.css'
@@ -15,7 +15,9 @@ export default function DoctorPatientsPage({ user, onBack, onLogout, onPatientFi
     const { t } = useLanguage()
     const [search, setSearch] = useState('')
     const [patients, setPatients] = useState([])
+    const [allPatients, setAllPatients] = useState([])
     const [loading, setLoading] = useState(true)
+    const [showAll, setShowAll] = useState(false)
 
     useEffect(() => {
         fetchMedecinPatients().then(r => {
@@ -24,7 +26,18 @@ export default function DoctorPatientsPage({ user, onBack, onLogout, onPatientFi
         })
     }, [])
 
-    const filtered = patients.filter(p => {
+    const handleSearchAll = (val) => {
+        setSearch(val)
+        if (val.length >= 2) {
+            setShowAll(true)
+            searchPatients(val).then(r => { if (r.success) setAllPatients(r.data) })
+        } else {
+            setShowAll(false)
+        }
+    }
+
+    const displayPatients = showAll ? allPatients : patients
+    const filtered = displayPatients.filter(p => {
         const fullName = `${p.firstName} ${p.lastName}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
@@ -70,9 +83,9 @@ export default function DoctorPatientsPage({ user, onBack, onLogout, onPatientFi
                         <input
                             className={styles.searchInput}
                             type="text"
-                            placeholder="Rechercher un patient par nom..."
+                            placeholder="Rechercher un patient par nom (2 lettres min pour chercher dans toute la BDD)..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => handleSearchAll(e.target.value)}
                         />
                     </div>
                 </div>

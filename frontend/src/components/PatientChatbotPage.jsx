@@ -5,7 +5,7 @@ import {
     Search, Bell, Plus, Info, Lock, Mic, Loader,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { sendChatbotMessage } from '../services/api'
+import { sendChatbotMessage, analyzeMedicalFile } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientChatbotPage.module.css'
 import logo from '../assets/logo.png'
@@ -111,13 +111,66 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
         setInputValue(t(titleKey))
     }
 
-    const handleChatFiles = (e) => {
+    const handleChatFiles = async (e) => {
         const files = e.target.files
-        if (files?.length) {
-            const names = [...files].map((f) => f.name).join(', ')
-            appendUserMessage(`${t('chatbot.uploadContext')} : ${names}`)
+        if (!files?.length) return
+
+        const file = files[0]
+        const fileName = file.name
+
+        // Show user message with file name
+        setMessages(prev => [...prev, {
+            id: Date.now(),
+            author: 'user',
+            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            text: `📎 Document envoyé : ${fileName}`,
+        }])
+        setIsLoading(true)
+
+        try {
+            const result = await analyzeMedicalFile(file)
+
+            if (result.success) {
+                const analysis = result.data
+                let responseText = ''
+                if (analysis.summary) responseText += `📋 **Résumé :** ${analysis.summary}\n\n`
+                if (analysis.recommendations) {
+                    responseText += `💡 **Recommandations :**\n`
+                    if (Array.isArray(analysis.recommendations)) {
+                        analysis.recommendations.forEach(r => { responseText += `• ${r}\n` })
+                    } else {
+                        responseText += analysis.recommendations
+                    }
+                }
+                if (analysis.riskLevel) responseText += `\n⚠️ **Niveau de risque :** ${analysis.riskLevel}`
+                if (!responseText) responseText = 'Document analysé avec succès.'
+
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    author: 'bot',
+                    timestamp: `SantéClaire AI • ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`,
+                    text: responseText,
+                }])
+            } else {
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    author: 'bot',
+                    timestamp: 'SantéClaire AI',
+                    text: `Désolé, je n'ai pas pu analyser ce document. ${result.error || ''}`,
+                }])
+            }
+        } catch (err) {
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1,
+                author: 'bot',
+                timestamp: 'SantéClaire AI',
+                text: 'Erreur lors de l\'analyse du document. Veuillez réessayer.',
+            }])
+        } finally {
+            setIsLoading(false)
+            e.target.value = ''
+            setTimeout(scrollToBottom, 100)
         }
-        e.target.value = ''
     }
 
     const startVoiceInput = () => {
@@ -323,7 +376,7 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
                     <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*,.pdf,application/pdf"
+                        accept="image/*,.pdf,.txt,.doc,.docx,application/pdf,text/plain"
                         multiple
                         className={styles.visuallyHidden}
                         aria-hidden

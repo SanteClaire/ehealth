@@ -5,7 +5,7 @@ import {
     Lock, ChevronRight, Settings, User,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchMedecinPatientDetail } from '../services/api'
+import { fetchMedecinPatientDetail, createOrdonnance, fetchMedecinPatients } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorPatientFilePage.module.css'
 import logo from '../assets/logo.png'
@@ -27,6 +27,8 @@ export default function DoctorPatientFilePage({ patientId, onBack, onPatients, o
     const [showModal, setShowModal] = useState(false)
     const [patient, setPatient] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [showOrdonnanceForm, setShowOrdonnanceForm] = useState(false)
+    const [ordForm, setOrdForm] = useState({ dateExpiration: '', instructions: '' })
 
     useEffect(() => {
         if (!patientId) { setLoading(false); return }
@@ -113,8 +115,44 @@ export default function DoctorPatientFilePage({ patientId, onBack, onPatients, o
                         <button className={styles.btnSecondary} onClick={() => onMedicalRecords && onMedicalRecords()}>
                             <FileText size={14} /> Voir les documents
                         </button>
+                        <button className={styles.btnSecondary} onClick={() => setShowOrdonnanceForm(!showOrdonnanceForm)}>
+                            <FilePlus size={14} /> Créer ordonnance
+                        </button>
                     </div>
                 </div>
+
+                {showOrdonnanceForm && (
+                    <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, margin: '0 24px 16px' }}>
+                        <h3 style={{ marginBottom: 12, fontSize: '1rem', color: '#0F2445' }}>Nouvelle ordonnance pour {patient.firstName} {patient.lastName}</h3>
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'end' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6B7280', marginBottom: 4 }}>Date d'expiration</label>
+                                <input type="date" value={ordForm.dateExpiration} onChange={e => setOrdForm(p => ({ ...p, dateExpiration: e.target.value }))}
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB' }} />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 250 }}>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6B7280', marginBottom: 4 }}>Instructions</label>
+                                <input type="text" value={ordForm.instructions} onChange={e => setOrdForm(p => ({ ...p, instructions: e.target.value }))}
+                                    placeholder="Ex: Prendre pendant les repas..."
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB', width: '100%' }} />
+                            </div>
+                            <button onClick={async () => {
+                                if (!ordForm.dateExpiration) return
+                                const result = await createOrdonnance(patient.id, ordForm.dateExpiration, ordForm.instructions)
+                                if (result.success) {
+                                    alert(`Ordonnance ${result.data.numero} créée avec succès !`)
+                                    setShowOrdonnanceForm(false)
+                                    setOrdForm({ dateExpiration: '', instructions: '' })
+                                    // Reload patient data
+                                    fetchMedecinPatientDetail(patientId).then(r => { if (r.success) setPatient(r.data) })
+                                }
+                            }}
+                                style={{ padding: '8px 20px', background: '#0EA5B0', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
+                                Créer l'ordonnance
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* ── Access banner ── */}
                 <div className={styles.accessBanner}>

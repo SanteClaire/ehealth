@@ -104,6 +104,21 @@ export async function fetchPatientOrdonnances() {
     return apiFetch('/patient/ordonnances')
 }
 
+export async function uploadPatientDocument(file, type = 'AUTRE', partage = true) {
+    const token = getToken()
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', type)
+    formData.append('partage', partage ? '1' : '0')
+
+    const res = await fetch(`${API_URL}/patient/documents/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+    })
+    return res.json()
+}
+
 export async function fetchPatientDossier() {
     return apiFetch('/patient/dossier')
 }
@@ -128,6 +143,31 @@ export async function fetchMedecinOrdonnances() {
 
 export async function fetchMedecinDocuments() {
     return apiFetch('/medecin/documents')
+}
+
+export async function searchPatients(query = '') {
+    return apiFetch(`/medecin/patients/search?q=${encodeURIComponent(query)}`)
+}
+
+export async function createConsultation(patientId, dateDebut, dateFin = null) {
+    return apiFetch('/medecin/consultation', {
+        method: 'POST',
+        body: JSON.stringify({ patientId, dateDebut, dateFin }),
+    })
+}
+
+export async function createOrdonnance(patientId, dateExpiration, instructions, lignes = []) {
+    return apiFetch('/medecin/ordonnance', {
+        method: 'POST',
+        body: JSON.stringify({ patientId, dateExpiration, instructions, lignes }),
+    })
+}
+
+export async function updateProfile(data) {
+    return apiFetch('/me', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    })
 }
 
 export async function fetchMedecinAppointmentsToday() {
@@ -170,6 +210,17 @@ export async function sendChatbotMessage(message, patientId, conversationId = nu
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, patientId: String(patientId), conversationId }),
+    })
+    return res.json()
+}
+
+export async function analyzeMedicalFile(file) {
+    const formData = new FormData()
+    formData.append('medicalFile', file)
+
+    const res = await fetch(`${CHATBOT_URL}/chatbot/analyze-medical-file`, {
+        method: 'POST',
+        body: formData,
     })
     return res.json()
 }

@@ -14,6 +14,44 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[Route('/api')]
 class SecurityController extends AbstractApiController
 {
+    #[Route('/me', name: 'api_me_update', methods: ['PUT'])]
+    public function updateMe(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): JsonResponse {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->apiResponse(false, null, 'Not authenticated', [], [], 401);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (!$data) {
+            return $this->apiResponse(false, null, 'Données invalides', [], [], 400);
+        }
+
+        if (isset($data['firstName'])) $user->setFirstName($data['firstName']);
+        if (isset($data['lastName'])) $user->setLastName($data['lastName']);
+
+        if ($user instanceof \App\Entity\Patient) {
+            if (isset($data['telephone'])) $user->setTelephone($data['telephone']);
+            if (isset($data['adresse'])) $user->setAdresse($data['adresse']);
+            if (isset($data['groupeSanguin'])) $user->setGroupeSanguin($data['groupeSanguin']);
+            if (isset($data['allergies'])) $user->setAllergies($data['allergies']);
+            if (isset($data['antecedents'])) $user->setAntecedents($data['antecedents']);
+        }
+
+        if ($user instanceof \App\Entity\Medecin) {
+            if (isset($data['specialite'])) $user->setSpecialite($data['specialite']);
+            if (isset($data['adresseCabinet'])) $user->setAdresseCabinet($data['adresseCabinet']);
+            if (isset($data['telephoneCabinet'])) $user->setTelephoneCabinet($data['telephoneCabinet']);
+            if (isset($data['tarifConsultation'])) $user->setTarifConsultation($data['tarifConsultation']);
+        }
+
+        $entityManager->flush();
+
+        return $this->apiResponse(true, ['id' => $user->getId()], 'Profil mis à jour');
+    }
+
     #[Route('/register', name: 'api_register', methods: ['POST'])]
     public function register(
         Request $request,

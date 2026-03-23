@@ -4,7 +4,7 @@ import {
     Video, Plus, User,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchMedecinConsultations } from '../services/api'
+import { fetchMedecinConsultations, searchPatients, createConsultation } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorSchedulePage.module.css'
@@ -13,8 +13,12 @@ export default function DoctorSchedulePage({ user, onNavigate, onLogout }) {
     const { t } = useLanguage()
     const [currentView, setCurrentView] = useState('day')
     const [appointments, setAppointments] = useState([])
+    const [patients, setPatients] = useState([])
+    const [patientSearch, setPatientSearch] = useState('')
+    const [showNewRdv, setShowNewRdv] = useState(false)
+    const [newRdv, setNewRdv] = useState({ patientId: '', dateDebut: '', dateFin: '' })
 
-    useEffect(() => {
+    const loadConsultations = () => {
         fetchMedecinConsultations().then(r => {
             if (r.success) {
                 setAppointments(r.data.map(c => ({
@@ -31,7 +35,27 @@ export default function DoctorSchedulePage({ user, onNavigate, onLogout }) {
                 })))
             }
         })
+    }
+
+    useEffect(() => {
+        loadConsultations()
+        searchPatients('').then(r => { if (r.success) setPatients(r.data) })
     }, [])
+
+    const handlePatientSearch = (val) => {
+        setPatientSearch(val)
+        searchPatients(val).then(r => { if (r.success) setPatients(r.data) })
+    }
+
+    const handleCreateRdv = async () => {
+        if (!newRdv.patientId || !newRdv.dateDebut) return
+        const result = await createConsultation(parseInt(newRdv.patientId), newRdv.dateDebut, newRdv.dateFin || null)
+        if (result.success) {
+            setShowNewRdv(false)
+            setNewRdv({ patientId: '', dateDebut: '', dateFin: '' })
+            loadConsultations()
+        }
+    }
 
     // Build week days from current date
     const today = new Date()
@@ -64,11 +88,48 @@ export default function DoctorSchedulePage({ user, onNavigate, onLogout }) {
                             <Bell size={18} />
                             <span className={styles.notifDot}></span>
                         </button>
-                        <button className={styles.btnPrimary}>
+                        <button className={styles.btnPrimary} onClick={() => setShowNewRdv(!showNewRdv)}>
                             <Plus size={16} /> Nouveau RDV
                         </button>
                     </div>
                 </header>
+
+                {showNewRdv && (
+                    <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20, margin: '0 24px 16px' }}>
+                        <h3 style={{ marginBottom: 12, fontSize: '1rem', color: '#0F2445' }}>Planifier un nouveau rendez-vous</h3>
+                        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'end' }}>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6B7280', marginBottom: 4 }}>Rechercher un patient</label>
+                                <input type="text" placeholder="Tapez un nom, prénom ou email..." value={patientSearch}
+                                    onChange={e => handlePatientSearch(e.target.value)}
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB', minWidth: 250, marginBottom: 4 }} />
+                                <select value={newRdv.patientId} onChange={e => setNewRdv(p => ({ ...p, patientId: e.target.value }))}
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB', minWidth: 250, display: 'block' }}>
+                                    <option value="">-- Sélectionner --</option>
+                                    {patients.map(p => <option key={p.id} value={p.id}>{p.firstName} {p.lastName} ({p.email})</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6B7280', marginBottom: 4 }}>Date & heure début</label>
+                                <input type="datetime-local" value={newRdv.dateDebut} onChange={e => setNewRdv(p => ({ ...p, dateDebut: e.target.value }))}
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB' }} />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6B7280', marginBottom: 4 }}>Date & heure fin (optionnel)</label>
+                                <input type="datetime-local" value={newRdv.dateFin} onChange={e => setNewRdv(p => ({ ...p, dateFin: e.target.value }))}
+                                    style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #D1D5DB' }} />
+                            </div>
+                            <button onClick={handleCreateRdv}
+                                style={{ padding: '8px 20px', background: '#0EA5B0', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
+                                Créer le RDV
+                            </button>
+                            <button onClick={() => setShowNewRdv(false)}
+                                style={{ padding: '8px 16px', background: '#F3F4F6', color: '#6B7280', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div className={styles.content}>
 
