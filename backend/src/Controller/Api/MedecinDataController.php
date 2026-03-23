@@ -1,0 +1,216 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Entity\Medecin;
+use App\Entity\Patient;
+use App\Entity\ConsultationSession;
+use App\Entity\DocumentMedical;
+use App\Entity\Ordonnance;
+use App\Entity\Dossier;
+use App\Entity\LigneOrdonnance;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/api')]
+class MedecinDataController extends AbstractApiController
+{
+    public function __construct(
+        private EntityManagerInterface $em
+    ) {}
+
+    #[Route('/medecin/patients', name: 'api_medecin_patients', methods: ['GET'])]
+    public function medecinPatients(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        // Get unique patients from consultations
+        $consultations = $this->em->getRepository(ConsultationSession::class)
+            ->findBy(['medecin' => $user]);
+
+        $patientsMap = [];
+        foreach ($consultations as $c) {
+            $patient = $c->getPatient();
+            $pid = $patient->getId();
+            if (!isset($patientsMap[$pid])) {
+                $patientsMap[$pid] = [
+                    'id' => $pid,
+                    'firstName' => $patient->getFirstName(),
+                    'lastName' => $patient->getLastName(),
+                    'email' => $patient->getEmail(),
+                    'telephone' => $patient->getTelephone(),
+                    'dateNaissance' => $patient->getDateNaissance()?->format('Y-m-d'),
+                    'groupeSanguin' => $patient->getGroupeSanguin(),
+                    'allergies' => $patient->getAllergies(),
+                    'antecedents' => $patient->getAntecedents(),
+                    'lastConsultation' => $c->getDateDebut()?->format('Y-m-d H:i:s'),
+                    'consultationCount' => 0,
+                ];
+            }
+            $patientsMap[$pid]['consultationCount']++;
+            // Keep most recent consultation date
+            $currentDate = $c->getDateDebut()?->format('Y-m-d H:i:s');
+            if ($currentDate > $patientsMap[$pid]['lastConsultation']) {
+                $patientsMap[$pid]['lastConsultation'] = $currentDate;
+            }
+        }
+
+        return $this->apiResponse(true, array_values($patientsMap), 'Doctor patients');
+    }
+
+    #[Route('/medecin/ordonnances', name: 'api_medecin_ordonnances', methods: ['GET'])]
+    public function medecinOrdonnances(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $ordonnances = $this->em->getRepository(Ordonnance::class)
+            ->findBy(['medecin' => $user], ['dateEmission' => 'DESC']);
+
+        $data = array_map(fn($o) => [
+            'id' => $o->getId(),
+            'numero' => $o->getNumero(),
+            'dateEmission' => $o->getDateEmission()?->format('Y-m-d'),
+            'dateExpiration' => $o->getDateExpiration()?->format('Y-m-d'),
+            'instructions' => $o->getInstructions(),
+            'patient' => [
+                'id' => $o->getPatient()->getId(),
+                'firstName' => $o->getPatient()->getFirstName(),
+                'lastName' => $o->getPatient()->getLastName(),
+            ],
+        ], $ordonnances);
+
+        return $this->apiResponse(true, $data, 'Doctor ordonnances');
+    }
+
+    #[Route('/medecin/documents', name: 'api_medecin_documents', methods: ['GET'])]
+    public function medecinDocuments(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $documents = $this->em->getRepository(DocumentMedical::class)
+            ->findBy(['createurMedecin' => $user], ['id' => 'DESC']);
+
+        $data = array_map(fn($d) => [
+            'id' => $d->getId(),
+            'nomFichier' => $d->getNomFichier(),
+            'nomOriginal' => $d->getNomOriginal(),
+            'type' => $d->getType()->value,
+            'mimeType' => $d->getMimeType(),
+            'taille' => $d->getTaille(),
+            'estPartage' => $d->isEstPartage(),
+            'resumeIA' => $d->getResumeIA(),
+            'patient' => [
+                'id' => $d->getPatient()->getId(),
+                'firstName' => $d->getPatient()->getFirstName(),
+                'lastName' => $d->getPatient()->getLastName(),
+            ],
+        ], $documents);
+
+        return $this->apiResponse(true, $data, 'Doctor documents');
+    }
+
+    #[Route('/medecin/patient/{id}', name: 'api_medecin_patient_detail', methods: ['GET'])]
+    public function medecinPatientDetail(int $id): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Medecin) {
+            return $this->apiResponse(false, null, 'Access denied', [], [], 403);
+        }
+
+        $patient = $this->em->getRepository(Patient::class)->find($id);
+        if (!$patient) {
+            return $this->apiResponse(false, null, 'Patient not found', [], [], 404);
+        }
+
+        // Verify doctor has access (has consultations with this patient)
+        $hasAccess = $this->em->getRepository(ConsultationSession::class)
+            ->findOneBy(['medecin' => $user, 'patient' => $patient]);
+        if (!$hasAccess) {
+            return $this->apiResponse(false, null, 'Access denied to this patient', [], [], 403);
+        }
+
+        $consultations = $this->em->getRepository(ConsultationSession::class)
+            ->findBy(['medecin' => $user, 'patient' => $patient], ['dateDebut' => 'DESC']);
+
+        $documents = $this->em->getRepository(DocumentMedical::class)
+            ->findBy(['patient' => $patient], ['id' => 'DESC']);
+
+        $ordonnances = $this->em->getRepository(Ordonnance::class)
+            ->findBy(['patient' => $patient], ['dateEmission' => 'DESC']);
+
+        $dossier = $this->em->getRepository(Dossier::class)
+            ->findOneBy(['patient' => $patient]);
+
+        $data = [
+            'id' => $patient->getId(),
+            'firstName' => $patient->getFirstName(),
+            'lastName' => $patient->getLastName(),
+            'email' => $patient->getEmail(),
+            'telephone' => $patient->getTelephone(),
+            'dateNaissance' => $patient->getDateNaissance()?->format('Y-m-d'),
+            'adresse' => $patient->getAdresse(),
+            'groupeSanguin' => $patient->getGroupeSanguin(),
+            'allergies' => $patient->getAllergies(),
+            'antecedents' => $patient->getAntecedents(),
+            'numeroSecuriteSociale' => $patient->getNumeroSecuriteSociale(),
+            'dossier' => $dossier ? [
+                'id' => $dossier->getId(),
+                'nom' => $dossier->getNom(),
+                'description' => $dossier->getDescription(),
+            ] : null,
+            'consultations' => array_map(fn($c) => [
+                'id' => $c->getId(),
+                'dateDebut' => $c->getDateDebut()?->format('Y-m-d H:i:s'),
+                'dateFin' => $c->getDateFin()?->format('Y-m-d H:i:s'),
+                'estActive' => $c->isEstActive(),
+            ], $consultations),
+            'documents' => array_map(fn($d) => [
+                'id' => $d->getId(),
+                'nomFichier' => $d->getNomFichier(),
+                'nomOriginal' => $d->getNomOriginal(),
+                'type' => $d->getType()->value,
+                'mimeType' => $d->getMimeType(),
+                'taille' => $d->getTaille(),
+                'estConfidentiel' => $d->isEstConfidentiel(),
+                'estPartage' => $d->isEstPartage(),
+                'resumeIA' => $d->getResumeIA(),
+                'createurMedecin' => $d->getCreateurMedecin() ? [
+                    'id' => $d->getCreateurMedecin()->getId(),
+                    'firstName' => $d->getCreateurMedecin()->getFirstName(),
+                    'lastName' => $d->getCreateurMedecin()->getLastName(),
+                ] : null,
+            ], $documents),
+            'ordonnances' => array_map(fn($o) => [
+                'id' => $o->getId(),
+                'numero' => $o->getNumero(),
+                'dateEmission' => $o->getDateEmission()?->format('Y-m-d'),
+                'dateExpiration' => $o->getDateExpiration()?->format('Y-m-d'),
+                'instructions' => $o->getInstructions(),
+                'lignes' => array_map(fn($l) => [
+                    'id' => $l->getId(),
+                    'medicament' => $l->getMedicament()->getNomCommercial(),
+                    'molecule' => $l->getMedicament()->getNomMolecule(),
+                    'dosage' => $l->getMedicament()->getDosage(),
+                    'quantite' => $l->getQuantite(),
+                    'posologie' => $l->getPosologie(),
+                    'duree' => $l->getDuree(),
+                ], $o->getLignes()->toArray()),
+            ], $ordonnances),
+        ];
+
+        return $this->apiResponse(true, $data, 'Patient detail');
+    }
+}

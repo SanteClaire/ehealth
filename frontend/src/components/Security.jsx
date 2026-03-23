@@ -1,29 +1,32 @@
 import styles from './Security.module.css'
-
-const badges = [
-    {
-        icon: '🏥',
-        title: 'Hébergement certifié HDS',
-        sub: 'Données hébergées en France',
-    },
-    {
-        icon: '🔐',
-        title: 'Chiffrement de bout en bout',
-        sub: 'AES-256 + TLS 1.3',
-    },
-    {
-        icon: '🇪🇺',
-        title: 'Conforme RGPD',
-        sub: "Droit à l'oubli & portabilité",
-    },
-    {
-        icon: '🔒',
-        title: 'ProSanté Connect',
-        sub: 'Authentification médecins certifiée',
-    },
-]
+import { useLanguage } from '../hooks/useLanguage'
 
 export default function Security() {
+    const { t } = useLanguage()
+
+    const badges = [
+        {
+            icon: '🏥',
+            title: t('security.hds') || 'Hébergement certifié HDS',
+            sub: t('security.hds_sub') || 'Données hébergées en France',
+        },
+        {
+            icon: '🔐',
+            title: t('security.encryption') || 'Chiffrement de bout en bout',
+            sub: 'AES-256 + TLS 1.3',
+        },
+        {
+            icon: '🇪🇺',
+            title: t('security.gdpr') || 'Conforme RGPD',
+            sub: t('security.gdpr_sub') || "Droit à l'oubli & portabilité",
+        },
+        {
+            icon: '🔒',
+            title: t('security.prosante') || 'ProSanté Connect',
+            sub: t('security.prosante_sub') || 'Authentification médecins certifiée',
+        },
+    ]
+
     return (
         <section className={styles.section} id="security">
             <div className={styles.visual}>
@@ -39,13 +42,13 @@ export default function Security() {
                 ))}
             </div>
             <div className={styles.content}>
-                <div className={`${styles.eyebrow} fade-in`}>Sécurité</div>
-                <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>Votre santé mérite la meilleure protection.</h2>
+                <div className={`${styles.eyebrow} fade-in`}>{t('security.label') || 'Sécurité'}</div>
+                <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>{t('security.title') || 'Votre santé mérite la meilleure protection.'}</h2>
                 <p className={`${styles.sub} fade-in`} style={{ transitionDelay: '0.16s' }}>
-                    SantéClaire respecte les standards les plus stricts de sécurité des données de santé. Vos informations n'appartiennent qu'à vous.
+                    {t('security.subtitle') || 'SantéClaire respecte les standards les plus stricts de sécurité des données de santé. Vos informations n\'appartiennent qu\'à vous.'}
                 </p>
                 <p className={`${styles.body} fade-in`} style={{ transitionDelay: '0.24s' }}>
-                    Toutes les données sont hébergées exclusivement en France sur des infrastructures certifiées HDS (Hébergeur de Données de Santé). L'accès à vos documents est tracé, auditable et révocable à tout moment.
+                    {t('security.description') || 'Toutes les données sont hébergées exclusivement en France sur des infrastructures certifiées HDS (Hébergeur de Données de Santé). L\'accès à vos documents est tracé, auditable et révocable à tout moment.'}
                 </p>
             </div>
         </section>

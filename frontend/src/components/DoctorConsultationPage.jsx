@@ -4,29 +4,33 @@ import {
     Sparkles, PenLine, Check, Circle, Bell, Settings,
     CheckCircle2
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinPatientDetail } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorConsultationPage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 import SendReportModal from './SendReportModal'
 
-const initialMessages = [
-    { id: 1, from: 'doctor', name: 'DR. SMITH', time: '12:42', text: 'Bonjour Jean. Comment vous sentez-vous depuis notre dernier ajustement de traitement ?' },
-    { id: 2, from: 'patient', name: 'JEAN DUPONT', time: '12:43', text: 'Mieux, je crois. Les maux de tête ont diminué, mais j\'ai des vertiges en me levant le matin.' },
-    { id: 3, from: 'doctor', name: 'DR. SMITH', time: '12:44', text: 'Je vois. Les vertiges peuvent être un effet secondaire courant. Avez-vous des douleurs thoraciques associées ?' },
-    { id: 4, from: 'patient', name: 'JEAN DUPONT', time: '12:45', text: 'Non, pas de douleur. Juste une légère oppression.' },
-]
+export default function DoctorConsultationPage({ patientId, user, onEnd }) {
+    const [patient, setPatient] = useState(null)
 
-const clinicalFindings = [
-    { id: 1, label: 'Céphalées en régression', checked: true },
-    { id: 2, label: 'Vertiges matinaux (possible hypotension orthostatique)', checked: true },
-    { id: 3, label: 'Oppression thoracique légère (sans douleur aiguë)', checked: false },
-]
+    useEffect(() => {
+        if (!patientId) return
+        fetchMedecinPatientDetail(patientId).then(r => { if (r.success) setPatient(r.data) })
+    }, [patientId])
 
-const treatmentPlan = [
-    { id: 1, label: 'Réalisation d\'un ECG de repos', checked: false, badge: 'EN ATTENTE' },
-    { id: 2, label: 'Renouvellement ordonnance', checked: true, badge: null },
-]
+    const doctorName = user ? `DR. ${user.lastName?.toUpperCase()}` : 'DOCTEUR'
+    const patientName = patient ? `${patient.firstName?.toUpperCase()} ${patient.lastName?.toUpperCase()}` : 'PATIENT'
 
-export default function DoctorConsultationPage({ onEnd }) {
+    const initialMessages = [
+        { id: 1, from: 'doctor', name: doctorName, time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), text: patient ? `Bonjour ${patient.firstName}. Comment vous sentez-vous aujourd'hui ?` : 'Bonjour. Comment vous sentez-vous ?' },
+    ]
+
+    const clinicalFindings = patient?.antecedents ? [
+        { id: 1, label: patient.antecedents, checked: true },
+    ] : []
+
+    const treatmentPlan = []
     const [seconds, setSeconds] = useState(12 * 60 + 45)
     const [recording, setRecording] = useState(true)
     const [micOn, setMicOn] = useState(true)

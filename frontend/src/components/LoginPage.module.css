@@ -2,7 +2,7 @@
 .wrapper {
     display: flex;
     min-height: 100vh;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
 }
 
 /* ══════════════════════════════════
@@ -140,6 +140,12 @@
     justify-content: center;
     padding: 2.5rem 2rem;
     position: relative;
+}
+
+.langWrap {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
 }
 
 .rightLogoWrap {

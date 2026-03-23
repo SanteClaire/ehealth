@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import { Eye, EyeOff, Hospital, Info, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { register } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorRegisterPage.module.css'
-import logo from '../assets/logo2.png'
-import { authService } from '../services/authService'
+import logo from '../assets/logo.png'
 
 const SPECIALTIES = [
     'Médecine générale', 'Cardiologie', 'Dermatologie', 'Endocrinologie',
@@ -24,46 +26,46 @@ const STRENGTH_LABELS = ['', 'Faible', 'Moyen', 'Bon', 'Excellent']
 const STRENGTH_COLORS = ['#E5E7EB', '#EF4444', '#F59E0B', '#0EA5B0', '#22C55E']
 
 export default function DoctorRegisterPage({ onBack, onConfirm }) {
+    const { t } = useLanguage()
     const [form, setForm] = useState({
         prenom: '', nom: '', email: '', tel: '', dob: '',
         specialty: '', rpps: '', password: '', confirmPassword: ''
     })
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
 
     const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
     const [showPw, setShowPw] = useState(false)
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
     const strength = useMemo(() => getStrength(form.password), [form.password])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError('')
+
         if (form.password !== form.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas')
+            setError('Les mots de passe ne correspondent pas.')
             return
         }
 
         setLoading(true)
-        setError('')
-
         try {
-            const data = await authService.register({
+            const result = await register({
                 role: 'medecin',
                 email: form.email,
                 password: form.password,
                 firstName: form.prenom,
                 lastName: form.nom,
-                telephone: form.tel,
+                rpps: form.rpps,
                 specialite: form.specialty,
-                rpps: form.rpps
             })
 
-            if (data.success) {
+            if (result.success) {
                 onConfirm && onConfirm()
             } else {
-                setError(data.message || 'Erreur lors de l\'inscription')
+                setError(result.message || 'Erreur lors de l\'inscription')
             }
         } catch (err) {
-            setError('Une erreur est survenue')
+            setError(err.message || 'Erreur réseau')
         } finally {
             setLoading(false)
         }
@@ -75,6 +77,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
             {/* ── Logo ── */}
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.logo} />
+                <LanguageSwitcher />
             </header>
 
             {/* ── Back link ── */}
@@ -210,7 +213,7 @@ export default function DoctorRegisterPage({ onBack, onConfirm }) {
 
             {/* ── Footer ── */}
             <footer className={styles.footer}>
-                Besoin d'aide ? <a href="#" className={styles.supportLink}>Contactez le support praticiens</a>
+                Besoin d'aide ? <a href="mailto:praticiens@santeclaire.fr" className={styles.supportLink}>Contactez le support praticiens</a>
             </footer>
 
         </div>

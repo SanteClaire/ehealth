@@ -106,7 +106,7 @@
 }
 
 .heroTitle {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-heading);
     font-size: 58px;
     font-weight: 800;
     line-height: 1.06;
@@ -164,7 +164,7 @@
     align-items: center;
     gap: 8px;
     transition: all 0.25s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
     cursor: pointer;
 }
 
@@ -187,7 +187,7 @@
     align-items: center;
     gap: 8px;
     transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
 }
 
 .btnHeroSecondary:hover {
@@ -208,7 +208,7 @@
 }
 
 .statNumber {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-heading);
     font-size: 26px;
     font-weight: 800;
     color: var(--navy);
@@ -325,7 +325,7 @@
     color: white;
     font-weight: 600;
     font-size: 14px;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-heading);
 }
 
 .cardHeaderSub {
@@ -341,7 +341,7 @@
     color: #F97316;
     font-size: 12px;
     font-weight: 600;
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-heading);
 }
 
 .cardBody {

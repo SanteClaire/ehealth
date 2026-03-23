@@ -1,0 +1,82 @@
+.switcher {
+  position: relative;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.trigger:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.trigger:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.trigger svg {
+  transition: transform 0.2s ease;
+}
+
+.trigger svg.open {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.item:hover {
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.item.active {
+  background-color: #1e40af;
+  color: white;
+  font-weight: 600;
+}

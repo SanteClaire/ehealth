@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { Check, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorDocumentsPage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 
 export default function DoctorDocumentsPage({ onBack, onComplete }) {
+    const { t } = useLanguage()
     const [consents, setConsents] = useState({
         cgu: false,
         exact: false
@@ -24,6 +27,7 @@ export default function DoctorDocumentsPage({ onBack, onComplete }) {
             {/* ── Logo ── */}
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.logo} />
+                <LanguageSwitcher />
             </header>
 
             {/* ── Stepper ── */}
@@ -124,7 +128,7 @@ export default function DoctorDocumentsPage({ onBack, onComplete }) {
                         <label className={styles.checkRow}>
                             <input type="checkbox" checked={consents.cgu}
                                 onChange={(e) => setConsents(c => ({ ...c, cgu: e.target.checked }))} />
-                            <span>J'accepte les <a href="#" className={styles.link}>CGU</a> et la <a href="#" className={styles.link}>Politique de confidentialité</a> *</span>
+                            <span>J'accepte les <a href="/#cta" className={styles.link}>CGU</a> et la <a href="/#security" className={styles.link}>Politique de confidentialité</a> *</span>
                         </label>
                         <label className={styles.checkRow}>
                             <input type="checkbox" checked={consents.exact}

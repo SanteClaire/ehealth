@@ -1,0 +1,43 @@
+{
+  "name": "chatbot-santeclaire",
+  "version": "1.0.0",
+  "description": "Chatbot médical intelligent avec IA pour SantéClaire - Module universitaire",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "chatbot",
+    "medical",
+    "ai",
+    "healthcare",
+    "node.js"
+  ],
+  "author": "Sogona Yasmine",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.17.0",
+    "axios": "^1.13.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.0",
+    "mongoose": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.104.0",
+    "tesseract.js": "^7.0.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  }
+}

@@ -1,47 +1,49 @@
 import styles from './Hero.module.css'
+import { useLanguage } from '../hooks/useLanguage'
 
 export default function Hero({ onOpenModal }) {
+    const { t } = useLanguage()
     return (
         <section className={styles.hero}>
             {/* LEFT */}
             <div className={styles.heroLeft}>
                 <div className={styles.heroBadge}>
                     <div className={styles.badgeDot}></div>
-                    Plateforme certifiée HDS — Conforme RGPD
+                    {t('hero.badge') || 'Plateforme certifiée HDS — Conforme RGPD'}
                 </div>
 
                 <h1 className={styles.heroTitle}>
-                    Vos documents<br />médicaux,<br />
-                    <span className={styles.highlight}>enfin simples.</span>
+                    {t('hero.title_part1')}<br />{t('hero.title_part2')}<br />
+                    <span className={styles.highlight}>{t('hero.title_part3')}</span>
                 </h1>
 
                 <p className={styles.heroSub}>
-                    SantéClaire connecte patients et médecins autour d'un dossier médical unique, partagé en toute confiance, accessible en un clic lors de vos consultations.
+                    {t('hero.description')}
                 </p>
 
                 <div className={styles.heroActions}>
                     <button className={styles.btnHeroPrimary} onClick={onOpenModal}>
-                        Créer mon compte gratuit →
+                        {t('hero.cta')} →
                     </button>
                     <a href="#how" className={styles.btnHeroSecondary}>
-                        Voir comment ça marche
+                        {t('hero.demo')}
                     </a>
                 </div>
 
                 <div className={styles.heroStats}>
                     <div className={styles.stat}>
-                        <span className={styles.statNumber}>12k+</span>
-                        <span className={styles.statLabel}>Patients actifs</span>
+                        <span className={styles.statNumber}>{t('hero.stats1')}</span>
+                        <span className={styles.statLabel}>{t('hero.stats1_label')}</span>
                     </div>
                     <div className={styles.statDivider}></div>
                     <div className={styles.stat}>
-                        <span className={styles.statNumber}>850+</span>
-                        <span className={styles.statLabel}>Médecins certifiés</span>
+                        <span className={styles.statNumber}>{t('hero.stats2')}</span>
+                        <span className={styles.statLabel}>{t('hero.stats2_label')}</span>
                     </div>
                     <div className={styles.statDivider}></div>
                     <div className={styles.stat}>
-                        <span className={styles.statNumber}>99.9%</span>
-                        <span className={styles.statLabel}>Disponibilité</span>
+                        <span className={styles.statNumber}>{t('hero.stats3')}</span>
+                        <span className={styles.statLabel}>{t('hero.stats3_label')}</span>
                     </div>
                 </div>
             </div>

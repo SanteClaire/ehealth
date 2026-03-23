@@ -68,7 +68,7 @@
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
 }
 
 .btnOutline:hover {
@@ -87,7 +87,7 @@
     cursor: pointer;
     text-decoration: none;
     transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
 }
 
 .btnPrimary:hover {

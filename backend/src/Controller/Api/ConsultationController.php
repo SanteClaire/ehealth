@@ -5,6 +5,8 @@ namespace App\Controller\Api;
 use App\Entity\Patient;
 use App\Entity\Medecin;
 use App\Entity\ConsultationSession;
+use App\Entity\DocumentMedical;
+use App\Entity\Ordonnance;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -100,11 +102,26 @@ class ConsultationController extends AbstractApiController
             ->getQuery()
             ->getSingleScalarResult();
 
-        // For now, mock other stats (would need Ordonnance, Document entities linked to patient)
+        $ordonnancesCount = $this->em->createQueryBuilder()
+            ->select('COUNT(o.id)')
+            ->from(Ordonnance::class, 'o')
+            ->where('o.patient = :patient')
+            ->setParameter('patient', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $documentsCount = $this->em->createQueryBuilder()
+            ->select('COUNT(d.id)')
+            ->from(DocumentMedical::class, 'd')
+            ->where('d.patient = :patient')
+            ->setParameter('patient', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
         $data = [
             'rdvCount' => (int)$rdvCount,
-            'ordonnancesCount' => 0,
-            'documentsCount' => 0,
+            'ordonnancesCount' => (int)$ordonnancesCount,
+            'documentsCount' => (int)$documentsCount,
             'messagesCount' => 0,
         ];
 
@@ -139,11 +156,28 @@ class ConsultationController extends AbstractApiController
             ->getQuery()
             ->getSingleScalarResult();
 
+        $sharedDocuments = $this->em->createQueryBuilder()
+            ->select('COUNT(d.id)')
+            ->from(DocumentMedical::class, 'd')
+            ->where('d.createurMedecin = :medecin')
+            ->andWhere('d.estPartage = true')
+            ->setParameter('medecin', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $totalPatients = $this->em->createQueryBuilder()
+            ->select('COUNT(DISTINCT c2.patient)')
+            ->from(ConsultationSession::class, 'c2')
+            ->where('c2.medecin = :medecin')
+            ->setParameter('medecin', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
         $data = [
             'consultationsToday' => (int)$todayCount,
+            'totalPatients' => (int)$totalPatients,
+            'sharedDocuments' => (int)$sharedDocuments,
             'pendingReports' => 0,
-            'sharedDocuments' => 0,
-            'urgentLabResults' => 0,
         ];
 
         return $this->apiResponse(true, $data, 'Doctor stats');

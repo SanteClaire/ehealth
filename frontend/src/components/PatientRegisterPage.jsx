@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Eye, EyeOff, Lock, ArrowLeft } from 'lucide-react'
+import { register } from '../services/api'
 import styles from './PatientRegisterPage.module.css'
-import logo from '../assets/logo2.png'
-import { authService } from '../services/authService'
+import logo from '../assets/logo.png'
 
 function getStrength(pw) {
     let score = 0
@@ -34,31 +34,32 @@ export default function PatientRegisterPage({ onBack, onLogin, onConfirm }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError('')
+
         if (form.password !== form.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas')
+            setError('Les mots de passe ne correspondent pas.')
             return
         }
 
         setLoading(true)
-        setError('')
-
         try {
-            const data = await authService.register({
+            const result = await register({
+                role: 'patient',
                 email: form.email,
                 password: form.password,
                 firstName: form.prenom,
                 lastName: form.nom,
                 telephone: form.tel,
-                birthDate: form.dob
+                birthDate: form.dob,
             })
 
-            if (data.success) {
+            if (result.success) {
                 onConfirm && onConfirm()
             } else {
-                setError(data.message || 'Erreur lors de l\'inscription')
+                setError(result.message || 'Erreur lors de l\'inscription')
             }
         } catch (err) {
-            setError('Une erreur est survenue')
+            setError(err.message || 'Erreur réseau')
         } finally {
             setLoading(false)
         }
@@ -169,11 +170,11 @@ export default function PatientRegisterPage({ onBack, onLogin, onConfirm }) {
                     <div className={styles.checks}>
                         <label className={styles.checkRow}>
                             <input type="checkbox" checked={acceptCGU} onChange={() => setAcceptCGU(!acceptCGU)} />
-                            <span>J'accepte les <a href="#" className={styles.link}>Conditions Générales d'Utilisation</a> *</span>
+                            <span>J'accepte les <a href="/#cta" className={styles.link}>Conditions Générales d'Utilisation</a> *</span>
                         </label>
                         <label className={styles.checkRow}>
                             <input type="checkbox" checked={acceptPrivacy} onChange={() => setAcceptPrivacy(!acceptPrivacy)} />
-                            <span>J'accepte la <a href="#" className={styles.link}>Politique de confidentialité</a> *</span>
+                            <span>J'accepte la <a href="/#security" className={styles.link}>Politique de confidentialité</a> *</span>
                         </label>
                         <label className={styles.checkRow}>
                             <input type="checkbox" checked={acceptShare} onChange={() => setAcceptShare(!acceptShare)} />
@@ -181,9 +182,15 @@ export default function PatientRegisterPage({ onBack, onLogin, onConfirm }) {
                         </label>
                     </div>
 
+                    {error && (
+                        <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '10px 14px', borderRadius: 8, fontSize: '0.9rem', marginBottom: 8 }}>
+                            {error}
+                        </div>
+                    )}
+
                     <button type="submit" className={styles.btnSubmit}
-                        disabled={!acceptCGU || !acceptPrivacy || !acceptShare}>
-                        Créer mon compte &nbsp;→
+                        disabled={!acceptCGU || !acceptPrivacy || !acceptShare || loading}>
+                        {loading ? 'Inscription en cours...' : 'Créer mon compte →'}
                     </button>
                 </form>
             </main>

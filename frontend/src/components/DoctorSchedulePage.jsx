@@ -1,74 +1,49 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-    LayoutDashboard, Users, Calendar, MessageSquare, BarChart2,
-    Settings, LogOut, ChevronLeft, ChevronRight, Search, Bell,
-    Clock, Video, User, Plus
+    ChevronLeft, ChevronRight, Search, Bell,
+    Video, Plus, User,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinConsultations } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorSchedulePage.module.css'
-import logo from '../assets/logo2.png'
 
-const navItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard' },
-    { icon: Users, label: 'Mes Patients', id: 'patients' },
-    { icon: Calendar, label: 'Planning', id: 'planning', active: true },
-    { icon: MessageSquare, label: 'Messages', id: 'messages' },
-    { icon: BarChart2, label: 'Rapports', id: 'reports' },
-]
+export default function DoctorSchedulePage({ user, onNavigate, onLogout }) {
+    const { t } = useLanguage()
+    const [currentView, setCurrentView] = useState('day')
+    const [appointments, setAppointments] = useState([])
 
-// Semaine factice pour la maquette
-const weekDays = [
-    { day: 'Lun', date: '12' },
-    { day: 'Mar', date: '13', current: true },
-    { day: 'Mer', date: '14' },
-    { day: 'Jeu', date: '15' },
-    { day: 'Ven', date: '16' },
-]
+    useEffect(() => {
+        fetchMedecinConsultations().then(r => {
+            if (r.success) {
+                setAppointments(r.data.map(c => ({
+                    id: c.id,
+                    time: new Date(c.dateDebut).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                    duration: c.dateFin ? `${Math.round((new Date(c.dateFin) - new Date(c.dateDebut)) / 60000)}m` : '—',
+                    patient: `${c.patient.firstName} ${c.patient.lastName}`,
+                    type: 'consultation',
+                    typeLabel: c.estActive ? 'En cours' : 'Consultation',
+                    typeColor: c.estActive ? '#FEF3C7' : '#E0F2FE',
+                    textColor: c.estActive ? '#D97706' : '#0284C7',
+                    status: c.estActive ? 'en cours' : (c.dateFin ? 'terminée' : 'planifiée'),
+                    date: new Date(c.dateDebut).toLocaleDateString('fr-FR'),
+                })))
+            }
+        })
+    }, [])
 
-const appointments = [
-    { id: 1, time: '09:00', duration: '30m', patient: 'Alice Dubois', type: 'consultation', typeLabel: 'Consultation', typeColor: '#E0F2FE', textColor: '#0284C7', status: 'confirmé' },
-    { id: 2, time: '10:00', duration: '45m', patient: 'Jean Dupont', type: 'video', typeLabel: 'Téléconsultation', typeColor: '#FDF4FF', textColor: '#C026D3', status: 'salle d\'attente' },
-    { id: 3, time: '11:30', duration: '30m', patient: 'Marc Leblanc', type: 'followup', typeLabel: 'Suivi', typeColor: '#ECFCCB', textColor: '#65A30D', status: 'confirmé' },
-    { id: 4, time: '14:00', duration: '60m', patient: 'Sophie Martin', type: 'consultation', typeLabel: 'Bilan complet', typeColor: '#FEF3C7', textColor: '#D97706', status: 'en attente' },
-]
-
-export default function DoctorSchedulePage({ onNavigate, onLogout }) {
-    const [currentView, setCurrentView] = useState('day') // day, week, month
+    // Build week days from current date
+    const today = new Date()
+    const weekDays = Array.from({ length: 5 }, (_, i) => {
+        const d = new Date(today)
+        d.setDate(today.getDate() - today.getDay() + 1 + i)
+        return { day: d.toLocaleDateString('fr-FR', { weekday: 'short' }), date: d.getDate().toString(), current: d.toDateString() === today.toDateString() }
+    })
 
     return (
         <div className={styles.layout}>
-
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTop}>
-                    <div className={styles.brand}>
-                        <img src={logo} alt="SantéClaire" className={styles.logo} />
-                        <span className={styles.brandSub}>ESPACE MÉDECIN</span>
-                    </div>
-                    <nav className={styles.nav}>
-                        {navItems.map((item) => {
-                            const Icon = item.icon
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => onNavigate && onNavigate(item.id)}
-                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-                                >
-                                    <Icon size={18} />
-                                    {item.label}
-                                </button>
-                            )
-                        })}
-                    </nav>
-                </div>
-                <div className={styles.sidebarBottom}>
-                    <button className={styles.navItem} onClick={() => onNavigate && onNavigate('settings')}>
-                        <Settings size={18} /> Paramètres
-                    </button>
-                    <button className={styles.logoutBtn} onClick={onLogout}>
-                        <LogOut size={18} /> Déconnexion
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar activeId="planning" onNavigate={onNavigate} onLogout={onLogout} />
 
             {/* ── Main content ── */}
             <main className={styles.main}>
@@ -76,7 +51,7 @@ export default function DoctorSchedulePage({ onNavigate, onLogout }) {
                 {/* Header */}
                 <header className={styles.header}>
                     <div className={styles.headerTitle}>
-                        <h1>Planning</h1>
+                        <h1>{t('doctor.schedule')}</h1>
                         <p>Gérez vos rendez-vous et disponibilités</p>
                     </div>
                     <div className={styles.headerRight}>
@@ -84,6 +59,7 @@ export default function DoctorSchedulePage({ onNavigate, onLogout }) {
                             <Search size={16} className={styles.searchIcon} />
                             <input type="text" placeholder="Rechercher un RDV..." className={styles.searchInput} />
                         </div>
+                        <LanguageSwitcher />
                         <button className={styles.iconBtn}>
                             <Bell size={18} />
                             <span className={styles.notifDot}></span>

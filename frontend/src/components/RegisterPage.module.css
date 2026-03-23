@@ -7,7 +7,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
     color: #111827;
 }
 
@@ -15,15 +15,21 @@
 .header {
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     padding: 1.25rem 2rem 0;
-    gap: 0.5rem;
 }
 
 .headerLogo {
     width: 110px;
     object-fit: contain;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .backLink {

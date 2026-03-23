@@ -1,69 +1,30 @@
 import { useState } from 'react'
 import {
-    LayoutDashboard, Users, Calendar, MessageSquare, BarChart2,
-    Settings, LogOut, CheckCircle2, Shield, Bell, CreditCard,
-    Stethoscope, Clock, Lock
+    Shield, Bell, CreditCard,
+    Stethoscope, Clock, Lock,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorSettingsPage.module.css'
-import logo from '../assets/logo2.png'
-
-const navItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard' },
-    { icon: Users, label: 'Mes Patients', id: 'patients' },
-    { icon: Calendar, label: 'Planning', id: 'planning' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages' },
-    { icon: BarChart2, label: 'Rapports', id: 'reports' },
-]
 
 export default function DoctorSettingsPage({ user, onNavigate, onLogout }) {
+    const { t } = useLanguage()
     const [activeTab, setActiveTab] = useState('profile') // profile, security, notifications, billing
-    
-    // Initiales pour l'avatar
-    const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : 'DR'
 
     return (
         <div className={styles.layout}>
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTop}>
-                    <div className={styles.brand}>
-                        <img src={logo} alt="SantéClaire" className={styles.logo} />
-                        <span className={styles.brandSub}>ESPACE MÉDECIN</span>
-                    </div>
-                    <nav className={styles.nav}>
-                        {navItems.map((item) => {
-                            const Icon = item.icon
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => onNavigate && onNavigate(item.id)}
-                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-                                >
-                                    <Icon size={18} />
-                                    {item.label}
-                                </button>
-                            )
-                        })}
-                    </nav>
-                </div>
-                <div className={styles.sidebarBottom}>
-                    <button className={`${styles.navItem} ${styles.navActive}`} disabled>
-                        <Settings size={18} /> Paramètres
-                    </button>
-                    <button className={styles.logoutBtn} onClick={onLogout}>
-                        <LogOut size={18} /> Déconnexion
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar activeId="settings" onNavigate={onNavigate} onLogout={onLogout} />
 
             {/* ── Main content ── */}
             <main className={styles.main}>
 
                 <header className={styles.header}>
                     <div className={styles.headerTitle}>
-                        <h1>Paramètres du compte</h1>
+                        <h1>{t('doctor.settings')}</h1>
                         <p>Gérez vos informations professionnelles et vos préférences</p>
                     </div>
+                    <LanguageSwitcher />
                 </header>
 
                 <div className={styles.content}>
@@ -107,7 +68,7 @@ export default function DoctorSettingsPage({ user, onNavigate, onLogout }) {
                                 </div>
                                 <div className={styles.cardBody}>
                                     <div className={styles.avatarSection}>
-                                        <div className={styles.avatarCircle}>{initials}</div>
+                                        <div className={styles.avatarCircle}>DS</div>
                                         <div className={styles.avatarActions}>
                                             <button className={styles.btnPrimary}>Changer la photo</button>
                                             <button className={styles.btnText}>Supprimer</button>
@@ -124,19 +85,19 @@ export default function DoctorSettingsPage({ user, onNavigate, onLogout }) {
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Nom Complet</label>
-                                            <input type="text" className={styles.input} defaultValue={user ? `${user.firstName} ${user.lastName}` : ''} />
+                                            <input type="text" className={styles.input} defaultValue="Dupont" />
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Spécialité</label>
-                                            <input type="text" className={styles.input} defaultValue={user?.specialite || ''} />
+                                            <input type="text" className={styles.input} defaultValue="Cardiologue" />
                                         </div>
                                         <div className={styles.formGroup}>
                                             <label>Numéro RPPS</label>
-                                            <input type="text" className={styles.input} defaultValue={user?.numeroRPPS || ''} disabled />
+                                            <input type="text" className={styles.input} defaultValue="10001234567" disabled />
                                         </div>
                                         <div className={styles.formGroupFull}>
                                             <label>Adresse du cabinet</label>
-                                            <textarea className={styles.inputArea} defaultValue={user?.adresseCabinet || ''}></textarea>
+                                            <textarea className={styles.inputArea} defaultValue="12 Rue de la Paix, 75002 Paris"></textarea>
                                         </div>
                                     </div>
 

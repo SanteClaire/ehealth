@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLanguage } from '../hooks/useLanguage'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorExercicePage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 
 const STRUCTURE_TYPES = [
     'Cabinet libéral', 'Hôpital / CHU', 'Clinique privée',
@@ -13,6 +15,7 @@ const LOGICIELS = [
 ]
 
 export default function DoctorExercicePage({ onBack, onNext }) {
+    const { t } = useLanguage()
     const [form, setForm] = useState({
         structureType: 'Cabinet libéral',
         structureName: '', address: '', postalCode: '', city: '',
@@ -33,6 +36,7 @@ export default function DoctorExercicePage({ onBack, onNext }) {
             {/* ── Logo ── */}
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.logo} />
+                <LanguageSwitcher />
             </header>
 
             {/* ── Stepper ── */}

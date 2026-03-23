@@ -3,118 +3,14 @@
     display: flex;
     min-height: 100vh;
     background: #F7F8FC;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
     color: #111827;
-}
-
-/* ── Sidebar ── */
-.sidebar {
-    width: 180px;
-    min-width: 180px;
-    background: #fff;
-    border-right: 1px solid #E5E7EB;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1.25rem 0 1.25rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 10;
-}
-
-.sidebarTop {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.brand {
-    padding: 0 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.1rem;
-}
-
-.logo {
-    width: 105px;
-    object-fit: contain;
-}
-
-.brandSub {
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    color: #9CA3AF;
-    font-weight: 600;
-}
-
-.nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    padding: 0 0.6rem;
-}
-
-.navItem {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.55rem 0.75rem;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    color: #6B7280;
-    font-size: 0.82rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    width: 100%;
-    transition: background 0.15s, color 0.15s;
-}
-
-.navItem:hover {
-    background: #F3F4F6;
-    color: #0F2445;
-}
-
-.navActive {
-    background: #0F2445 !important;
-    color: #fff !important;
-    font-weight: 700;
-}
-
-.sidebarBottom {
-    padding: 0 0.6rem;
-}
-
-.logoutBtn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    padding: 0.55rem 0.75rem;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    color: #6B7280;
-    font-size: 0.82rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s, color 0.15s;
-}
-
-.logoutBtn:hover {
-    background: #FEF2F2;
-    color: #EF4444;
 }
 
 /* ── Main ── */
 .main {
     flex: 1;
-    margin-left: 180px;
+    min-width: 0;
     padding: 1.5rem 2rem;
     display: flex;
     flex-direction: column;

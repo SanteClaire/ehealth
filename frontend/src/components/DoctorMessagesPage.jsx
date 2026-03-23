@@ -1,70 +1,22 @@
 import { useState } from 'react'
 import {
-    LayoutDashboard, Users, Calendar, MessageSquare, BarChart2,
-    Settings, LogOut, Search, MoreVertical, Edit, Phone,
-    Video, Paperclip, Send, Smile, User
+    Search, MoreVertical, Edit, Phone,
+    Video, Paperclip, Send, Smile,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorMessagesPage.module.css'
-import logo from '../assets/logo2.png'
 
-const navItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard' },
-    { icon: Users, label: 'Mes Patients', id: 'patients' },
-    { icon: Calendar, label: 'Planning', id: 'planning' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages', active: true },
-    { icon: BarChart2, label: 'Rapports', id: 'reports' },
-]
-
-const conversations = [
-    { id: 1, name: 'Dr. Sarah Miller', unread: 2, time: '10:45', preview: 'Avez-vous pu voir les derniers résultats de...', type: 'doctor', avatar: 'SM', color: '#8B5CF6' },
-    { id: 2, name: 'Jean Dupont', unread: 0, time: 'Hier', preview: 'Merci pour le compte-rendu, je passe à la ph...', type: 'patient', avatar: 'JD', color: '#10B981' },
-    { id: 3, name: 'Dr. Claude Bernard', unread: 0, time: 'Hier', preview: 'Je valide la prescription pour...', type: 'doctor', avatar: 'CB', color: '#3B82F6' },
-    { id: 4, name: 'Alerte Système', unread: 1, time: 'Lun', preview: 'Rappel : votre certification arrive à échéance...', type: 'system', avatar: '⚙️', color: '#EF4444' },
-]
-
-const messages = [
-    { id: 1, sender: 'them', text: 'Bonjour, avez-vous pu voir les derniers résultats de biochimie de notre patient commun, Mr Leblanc ?', time: '10:42' },
-    { id: 2, sender: 'me', text: 'Bonjour Sarah. Oui, je viens de les recevoir. J\'allais justement vous écrire.', time: '10:44' },
-    { id: 3, sender: 'them', text: 'Avez-vous remarqué la légère hausse de créatinine ? Pensez-vous qu\'on doive ajuster le dosage ?', time: '10:45' },
-]
-
-export default function DoctorMessagesPage({ onNavigate, onLogout }) {
-    const [activeConv, setActiveConv] = useState(1)
+export default function DoctorMessagesPage({ user, onNavigate, onLogout }) {
+    const { t } = useLanguage()
+    const conversations = []
+    const messages = []
+    const [activeConv, setActiveConv] = useState(null)
 
     return (
         <div className={styles.layout}>
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTop}>
-                    <div className={styles.brand}>
-                        <img src={logo} alt="SantéClaire" className={styles.logo} />
-                        <span className={styles.brandSub}>ESPACE MÉDECIN</span>
-                    </div>
-                    <nav className={styles.nav}>
-                        {navItems.map((item) => {
-                            const Icon = item.icon
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => onNavigate && onNavigate(item.id)}
-                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-                                >
-                                    <Icon size={18} />
-                                    {item.label}
-                                </button>
-                            )
-                        })}
-                    </nav>
-                </div>
-                <div className={styles.sidebarBottom}>
-                    <button className={styles.navItem} onClick={() => onNavigate && onNavigate('settings')}>
-                        <Settings size={18} /> Paramètres
-                    </button>
-                    <button className={styles.logoutBtn} onClick={onLogout}>
-                        <LogOut size={18} /> Déconnexion
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar activeId="messages" onNavigate={onNavigate} onLogout={onLogout} />
 
             {/* ── Main content (Split view) ── */}
             <main className={styles.main}>
@@ -72,8 +24,11 @@ export default function DoctorMessagesPage({ onNavigate, onLogout }) {
                 {/* ── Chat List (Left) ── */}
                 <div className={styles.chatList}>
                     <div className={styles.listHeader}>
-                        <h2>Messages</h2>
-                        <button className={styles.btnNew}><Edit size={16} /></button>
+                        <h2>{t('doctor.messages')}</h2>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <LanguageSwitcher />
+                            <button className={styles.btnNew}><Edit size={16} /></button>
+                        </div>
                     </div>
 
                     <div className={styles.searchBox}>

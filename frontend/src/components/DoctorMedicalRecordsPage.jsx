@@ -5,17 +5,13 @@ import {
     FolderOpen, FileText, Image, FileSpreadsheet,
     List, LayoutGrid, Printer, Paperclip
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinPatientDetail } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorMedicalRecordsPage.module.css'
-import logo from '../assets/logo2.png'
 
-const navLinks = [
-    { label: 'Tableau de bord', id: 'dashboard' },
-    { label: 'Mes Patients', id: 'patients' },
-    { label: 'Planning', id: 'planning' },
-    { label: 'Paramètres', id: 'settings' }
-]
-
-const documents = [
+const documents_UNUSED = [
     {
         id: 1,
         name: 'Blood_Panel_Jan2024.pdf',
@@ -77,10 +73,10 @@ function DocIcon({ type }) {
         rx: { bg: '#DCFCE7', color: '#15803D', label: 'RX' },
         doc: { bg: '#FEF3C7', color: '#B45309', label: 'DOC' },
     }
-    const t = map[type] || map.doc
+    const iconMap = map[type] || map.doc
     return (
-        <div style={{ width: 38, height: 38, borderRadius: 8, background: t.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: t.color, letterSpacing: '0.04em' }}>{t.label}</span>
+        <div style={{ width: 38, height: 38, borderRadius: 8, background: iconMap.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: iconMap.color, letterSpacing: '0.04em' }}>{iconMap.label}</span>
         </div>
     )
 }
@@ -100,9 +96,34 @@ function RelevanceBars({ n, color }) {
     )
 }
 
-export default function DoctorMedicalRecordsPage({ onBack, onLogout, onNavigate }) {
+export default function DoctorMedicalRecordsPage({ patientId, onBack, onLogout, onNavigate }) {
+    const { t } = useLanguage()
     const [seconds, setSeconds] = useState(14 * 60 + 59)
-    const [selected, setSelected] = useState(documents[1])
+    const [patient, setPatient] = useState(null)
+    const [documents, setDocuments] = useState([])
+
+    useEffect(() => {
+        if (!patientId) return
+        fetchMedecinPatientDetail(patientId).then(r => {
+            if (r.success) {
+                setPatient(r.data)
+                const catColors = { ANALYSE: '#3B82F6', RADIOGRAPHIE: '#8B5CF6', ORDONNANCE: '#F59E0B', COMPTE_RENDU: '#10B981', CERTIFICAT: '#6B7280', AUTRE: '#6B7280' }
+                setDocuments(r.data.documents.map((d, i) => ({
+                    id: d.id,
+                    name: d.nomFichier,
+                    sub: `${d.type} • ${(d.taille / 1024).toFixed(0)} Ko`,
+                    cat: d.type,
+                    catColor: catColors[d.type] || '#6B7280',
+                    date: 'Récent',
+                    preview: d.resumeIA || `Document: ${d.nomOriginal}`,
+                    aiSummary: d.resumeIA || null,
+                })))
+            }
+        })
+    }, [patientId])
+
+    const [selected, setSelected] = useState(null)
+    useEffect(() => { if (documents.length > 0 && !selected) setSelected(documents[0]) }, [documents])
     const [view, setView] = useState('list')
     const [activeFilter, setActiveFilter] = useState(true)
 
@@ -119,40 +140,36 @@ export default function DoctorMedicalRecordsPage({ onBack, onLogout, onNavigate 
     const time = fmt(seconds)
 
     return (
-        <div className={styles.page}>
+        <div className={styles.layout}>
+            <DoctorSidebar activeId="patients" onNavigate={onNavigate} onLogout={onLogout} />
+            <div className={styles.page}>
 
-            {/* ── Top Navbar ── */}
+            {/* ── Top bar ── */}
             <header className={styles.navbar}>
                 <div className={styles.navLeft}>
-                    <img src={logo} alt="SantéClaire" className={styles.navLogo} />
-                    <nav className={styles.navLinks}>
-                        {navLinks.map(l => (
-                            <button
-                                key={l.id}
-                                onClick={() => onNavigate && onNavigate(l.id)}
-                                className={`${styles.navLink} ${l.id === 'patients' ? styles.navLinkActive : ''}`}
-                            >
-                                {l.label}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-                <div className={styles.navRight}>
                     <div className={styles.searchBox}>
                         <Filter size={13} className={styles.searchIcon} />
                         <input className={styles.searchInput} placeholder="Search records..." />
                     </div>
-                    <button className={styles.bellBtn}>
+                </div>
+                <div className={styles.navRight}>
+                    <LanguageSwitcher />
+                    <button type="button" className={styles.bellBtn}>
                         <Bell size={18} />
                         <span className={styles.bellDot} />
                     </button>
-                    <div className={styles.doctorBlock}>
+                    <button
+                        type="button"
+                        className={styles.doctorBlock}
+                        onClick={() => onNavigate && onNavigate('profil')}
+                        aria-label={t('doctor.navMyProfile')}
+                    >
                         <div>
                             <div className={styles.doctorName}>Dr. Sarah Smith</div>
                             <div className={styles.doctorRole}>Cardiologist</div>
                         </div>
                         <div className={styles.doctorAvatar}>SS</div>
-                    </div>
+                    </button>
                 </div>
             </header>
 
@@ -361,6 +378,7 @@ export default function DoctorMedicalRecordsPage({ onBack, onLogout, onNavigate 
                 </div>
             </div>
 
+            </div>
         </div>
     )
 }

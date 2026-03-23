@@ -1,14 +1,18 @@
 import { Check, Mail, Stethoscope, Hospital, FileText, Clock, Lightbulb, CheckCircle2 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorConfirmPage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 
 export default function DoctorConfirmPage({ doctorName = 'Martin', email = 'dr.martin@hopital.fr', specialty = 'Médecine générale', structure = 'Cabinet Dr. Martin, Paris', docCount = 2, onDemo, onHome }) {
+    const { t } = useLanguage()
     return (
         <div className={styles.page}>
 
             {/* ── Logo ── */}
             <header className={styles.header}>
                 <img src={logo} alt="SantéClaire" className={styles.logo} />
+                <LanguageSwitcher />
             </header>
 
             {/* ── Success icon ── */}

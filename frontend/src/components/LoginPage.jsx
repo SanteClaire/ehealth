@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useLanguage } from '../hooks/useLanguage'
+import { login, getUserRole } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './LoginPage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 import doctorImg from '../assets/doctor.png'
-import { authService } from '../services/authService'
 
-export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
+export default function LoginPage({ onClose, onRegister, onDoctorLogin, onPatientLogin }) {
+    const { t } = useLanguage()
     const [role, setRole] = useState('patient')
     const [showPassword, setShowPassword] = useState(false)
     const [email, setEmail] = useState('')
@@ -14,18 +17,25 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setLoading(true)
         setError('')
-        
+        setLoading(true)
+
         try {
-            const data = await authService.login(email, password)
-            if (data.token) {
-                onLoginSuccess && onLoginSuccess()
+            const result = await login(email, password)
+            if (!result.success) {
+                setError(result.message || 'Erreur de connexion')
+                setLoading(false)
+                return
+            }
+
+            const userRole = getUserRole(result.data)
+            if (userRole === 'medecin') {
+                onDoctorLogin && onDoctorLogin(result.data)
             } else {
-                setError('Identifiants invalides')
+                onPatientLogin && onPatientLogin(result.data)
             }
         } catch (err) {
-            setError('Une erreur est survenue lors de la connexion')
+            setError(err.message || 'Identifiants incorrects')
         } finally {
             setLoading(false)
         }
@@ -46,8 +56,8 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
                 </div>
 
                 <div className={styles.leftContent}>
-                    <h2 className={styles.leftTitle}>Bienvenue sur<br />SantéClaire</h2>
-                    <p className={styles.leftSubtitle}>La plateforme qui connecte patients et<br />médecins en toute sécurité.</p>
+                    <h2 className={styles.leftTitle}>{t('auth.welcome_title')}</h2>
+                    <p className={styles.leftSubtitle}>{t('auth.welcome_subtitle')}</p>
                 </div>
 
                 <div className={styles.badges}>
@@ -59,10 +69,13 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
 
             {/* ── Panneau droit ── */}
             <main className={styles.right}>
+                <div className={styles.langWrap}>
+                    <LanguageSwitcher />
+                </div>
 
                 <div className={styles.formCard}>
-                    <h1 className={styles.heading}>Connexion</h1>
-                    <p className={styles.subheading}>Accédez à votre espace personnel</p>
+                    <h1 className={styles.heading}>{t('auth.login_title')}</h1>
+                    <p className={styles.subheading}>{t('auth.login_subtitle')}</p>
 
                     {/* Tabs Patient / Médecin */}
                     <div className={styles.tabs}>
@@ -70,20 +83,25 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
                             className={`${styles.tab} ${role === 'patient' ? styles.tabActive : ''}`}
                             onClick={() => setRole('patient')}
                         >
-                            Patient
+                            {t('auth.patient')}
                         </button>
                         <button
                             className={`${styles.tab} ${role === 'medecin' ? styles.tabActive : ''}`}
                             onClick={() => setRole('medecin')}
                         >
-                            Médecin
+                            {t('auth.doctor')}
                         </button>
                     </div>
 
                     <form onSubmit={handleSubmit} className={styles.form}>
+                        {error && (
+                            <div style={{ background: '#FEE2E2', color: '#DC2626', padding: '10px 14px', borderRadius: 8, fontSize: '0.9rem', marginBottom: 8 }}>
+                                {error}
+                            </div>
+                        )}
                         {/* Email */}
                         <div className={styles.field}>
-                            <label htmlFor="email" className={styles.label}>Email</label>
+                            <label htmlFor="email" className={styles.label}>{t('auth.email')}</label>
                             <div className={styles.inputWrap}>
                                 <span className={styles.inputIcon}>
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -94,7 +112,7 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
                                 <input
                                     id="email"
                                     type="email"
-                                    placeholder="votre@email.fr"
+                                    placeholder={t('auth.email_placeholder')}
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className={styles.input}
@@ -106,8 +124,8 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
                         {/* Mot de passe */}
                         <div className={styles.field}>
                             <div className={styles.passwordRow}>
-                                <label htmlFor="password" className={styles.label}>Mot de passe</label>
-                                <a href="#" className={styles.forgotLink}>Mot de passe oublié ?</a>
+                                <label htmlFor="password" className={styles.label}>{t('auth.password')}</label>
+                                <a href="mailto:support@santeclaire.fr?subject=R%C3%A9initialisation%20mot%20de%20passe" className={styles.forgotLink}>{t('auth.forgot_password')}</a>
                             </div>
                             <div className={styles.inputWrap}>
                                 <span className={styles.inputIcon}>
@@ -147,22 +165,22 @@ export default function LoginPage({ onClose, onRegister, onLoginSuccess }) {
                             </div>
                         </div>
 
-                        <button type="submit" className={styles.btnSubmit}>
-                            Se connecter
+                        <button type="submit" className={styles.btnSubmit} disabled={loading}>
+                            {loading ? 'Connexion...' : t('auth.sign_in')}
                         </button>
                     </form>
 
                     <div className={styles.divider}><span>— ou —</span></div>
 
                     <p className={styles.registerText}>
-                        Pas encore de compte ?{' '}
+                        {t('auth.no_account')}{' '}
                         <button
                             className={styles.registerLink}
                             onClick={() => onRegister && onRegister()}
-                        >Créer un compte →</button>
+                        >{t('auth.create_account')} →</button>
                     </p>
 
-                    <p className={styles.secureNote}>🔒 Connexion sécurisée • Données hébergées en France</p>
+                    <p className={styles.secureNote}>🔒 {t('auth.secure_login')}</p>
                 </div>
             </main>
         </div>

@@ -1,116 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
-    LayoutDashboard, Users, Calendar, MessageSquare, BarChart2,
-    Settings, LogOut, Search, Plus, FileText, ChevronLeft, ChevronRight,
-    Filter, Play
+    Search, Plus, FileText, ChevronLeft, ChevronRight,
+    Filter, Play,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinPatients } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorPatientsPage.module.css'
-import logo from '../assets/logo2.png'
 
-const navItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard' },
-    { icon: Users, label: 'Mes Patients', id: 'patients', active: true },
-    { icon: Calendar, label: 'Planning', id: 'planning' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages' },
-    { icon: BarChart2, label: 'Rapports', id: 'reports' },
-]
+const AVATAR_COLORS = ['#7C3AED', '#0EA5B0', '#6B7280', '#3B82F6', '#F59E0B', '#EF4444']
 
-const patients = [
-    {
-        id: 1,
-        name: 'Jean Dupont',
-        age: 65,
-        status: 'active',
-        statusLabel: 'CONSULTATION ACTIVE',
-        lastConsult: '12 oct. 2023',
-        reason: 'Suivi Hypertension',
-        docs: 12,
-        avatar: 'JD',
-        avatarColor: '#7C3AED',
-    },
-    {
-        id: 2,
-        name: 'Alice Martin',
-        age: 42,
-        status: 'pending',
-        statusLabel: 'DOCUMENTS EN ATTENTE',
-        lastConsult: '28 sept. 2023',
-        reason: 'Check-up annuel',
-        docs: 5,
-        avatar: 'AM',
-        avatarColor: '#0EA5B0',
-    },
-    {
-        id: 3,
-        name: 'Robert Chen',
-        age: 71,
-        status: 'inactive',
-        statusLabel: 'PAS DE VISITE RÉCENTE',
-        lastConsult: '05 août 2023',
-        reason: 'Visite spécialiste',
-        docs: 8,
-        avatar: 'RC',
-        avatarColor: '#6B7280',
-    },
-]
-
-const filters = [
-    { id: 'all', label: 'Tous', dot: null },
-    { id: 'active', label: 'Consultation active', dot: 'green' },
-    { id: 'pending', label: 'Documents en attente', dot: 'orange' },
-    { id: 'inactive', label: 'Pas de visite récente', dot: 'gray' },
-]
-
-export default function DoctorPatientsPage({ onBack, onLogout, onPatientFile, onNavigate }) {
+export default function DoctorPatientsPage({ user, onBack, onLogout, onPatientFile, onNavigate, onAddPatient }) {
+    const { t } = useLanguage()
     const [search, setSearch] = useState('')
-    const [activeFilter, setActiveFilter] = useState('all')
-    const [page, setPage] = useState(1)
-    const totalPages = 3
+    const [patients, setPatients] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetchMedecinPatients().then(r => {
+            if (r.success) setPatients(r.data)
+            setLoading(false)
+        })
+    }, [])
 
     const filtered = patients.filter(p => {
-        const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
-        const matchFilter = activeFilter === 'all' || p.status === activeFilter
-        return matchSearch && matchFilter
+        const fullName = `${p.firstName} ${p.lastName}`.toLowerCase()
+        return fullName.includes(search.toLowerCase())
     })
+
+    const getAge = (dateNaissance) => {
+        if (!dateNaissance) return null
+        const birth = new Date(dateNaissance)
+        const today = new Date()
+        let age = today.getFullYear() - birth.getFullYear()
+        if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--
+        return age
+    }
 
     return (
         <div className={styles.layout}>
-
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTop}>
-                    <div className={styles.brand}>
-                        <img src={logo} alt="SantéClaire" className={styles.logo} />
-                        <span className={styles.brandSub}>Interface Docteur</span>
-                    </div>
-
-                    <nav className={styles.nav}>
-                        {navItems.map((item) => {
-                            const Icon = item.icon
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => onNavigate && item.id ? onNavigate(item.id) : null}
-                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-                                >
-                                    <Icon size={17} />
-                                    {item.label}
-                                </button>
-                            )
-                        })}
-                    </nav>
-                </div>
-
-                <div className={styles.sidebarBottom}>
-                    <button className={styles.navItem} onClick={() => onNavigate && onNavigate('settings')}>
-                        <Settings size={18} /> Paramètres
-                    </button>
-                    <button className={styles.logoutBtn} onClick={onLogout}>
-                        <LogOut size={16} />
-                        Déconnexion
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar activeId="patients" onNavigate={onNavigate} onLogout={onLogout} />
 
             {/* ── Main ── */}
             <div className={styles.main}>
@@ -118,112 +48,80 @@ export default function DoctorPatientsPage({ onBack, onLogout, onPatientFile, on
                 {/* ── Header ── */}
                 <div className={styles.pageHeader}>
                     <div>
-                        <h1 className={styles.pageTitle}>Mes Patients</h1>
-                        <p className={styles.pageCount}>28 patients suivis sur la plateforme</p>
+                        <h1 className={styles.pageTitle}>{t('doctor.patients')}</h1>
+                        <p className={styles.pageCount}>{patients.length} patient{patients.length !== 1 ? 's' : ''} suivi{patients.length !== 1 ? 's' : ''} sur la plateforme</p>
                     </div>
-                    <button className={styles.btnAdd}>
-                        <Plus size={16} /> Ajouter un patient
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <LanguageSwitcher />
+                        <button
+                            type="button"
+                            className={styles.btnAdd}
+                            onClick={() => onAddPatient && onAddPatient()}
+                        >
+                            <Plus size={16} /> {t('doctor.addPatientBtn')}
+                        </button>
+                    </div>
                 </div>
 
-                {/* ── Filters ── */}
+                {/* ── Search ── */}
                 <div className={styles.filterBar}>
                     <div className={styles.searchWrap}>
                         <Search size={15} className={styles.searchIcon} />
                         <input
                             className={styles.searchInput}
                             type="text"
-                            placeholder="Rechercher un patient par..."
+                            placeholder="Rechercher un patient par nom..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
-                    </div>
-
-                    <div className={styles.filterGroup}>
-                        <button className={`${styles.filterBtn} ${styles.filterAll}`}>
-                            Tous <ChevronRight size={13} style={{ transform: 'rotate(90deg)' }} />
-                        </button>
-                        {filters.slice(1).map((f) => (
-                            <button
-                                key={f.id}
-                                className={`${styles.filterTag} ${activeFilter === f.id ? styles.filterTagActive : ''}`}
-                                onClick={() => setActiveFilter(activeFilter === f.id ? 'all' : f.id)}
-                            >
-                                <span className={`${styles.dot} ${styles[`dot_${f.id}`]}`} />
-                                {f.label}
-                            </button>
-                        ))}
                     </div>
                 </div>
 
                 {/* ── Patient list ── */}
                 <div className={styles.patientList}>
-                    {filtered.map((p) => (
-                        <div key={p.id} className={styles.patientCard}>
-                            <div className={styles.patientLeft}>
-                                <div className={styles.avatar} style={{ background: p.avatarColor }}>
-                                    {p.avatar}
+                    {loading && <p style={{ color: '#9CA3AF', padding: 20 }}>Chargement...</p>}
+                    {!loading && filtered.length === 0 && (
+                        <p style={{ color: '#9CA3AF', padding: 20 }}>Aucun patient trouvé.</p>
+                    )}
+                    {filtered.map((p, i) => {
+                        const initials = `${(p.firstName?.[0] || '')}${(p.lastName?.[0] || '')}`.toUpperCase()
+                        const age = getAge(p.dateNaissance)
+                        return (
+                            <div key={p.id} className={styles.patientCard}>
+                                <div className={styles.patientLeft}>
+                                    <div className={styles.avatar} style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                                        {initials}
+                                    </div>
+                                    <div className={styles.patientInfo}>
+                                        <div className={styles.patientName}>
+                                            {p.firstName} {p.lastName} {age !== null && <span className={styles.patientAge}>• {age} ans</span>}
+                                        </div>
+                                        <div className={styles.lastConsult}>
+                                            {p.lastConsultation && <>Dernière consultation : {new Date(p.lastConsultation).toLocaleDateString('fr-FR')}</>}
+                                            {p.consultationCount > 0 && <> — {p.consultationCount} consultation{p.consultationCount > 1 ? 's' : ''}</>}
+                                        </div>
+                                        {p.allergies && (
+                                            <div style={{ fontSize: '0.8rem', color: '#EF4444', marginTop: 2 }}>
+                                                Allergies : {p.allergies}
+                                            </div>
+                                        )}
+                                        {p.groupeSanguin && (
+                                            <div style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: 2 }}>
+                                                Groupe sanguin : {p.groupeSanguin}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className={styles.patientInfo}>
-                                    <div className={styles.patientName}>
-                                        {p.name} <span className={styles.patientAge}>• {p.age} ans</span>
-                                    </div>
-                                    <div className={`${styles.statusBadge} ${styles[`status_${p.status}`]}`}>
-                                        <span className={`${styles.dot} ${styles[`dot_${p.status}`]}`} />
-                                        {p.statusLabel}
-                                    </div>
-                                    <div className={styles.lastConsult}>
-                                        Dernière consultation: {p.lastConsult} • {p.reason}
+
+                                <div className={styles.patientRight}>
+                                    <div className={styles.actions}>
+                                        <button className={styles.btnDossier} onClick={() => onPatientFile && onPatientFile(p.id)}>Voir le dossier</button>
                                     </div>
                                 </div>
                             </div>
-
-                            <div className={styles.patientRight}>
-                                <div className={styles.docsCount}>
-                                    <FileText size={14} />
-                                    <span className={styles.docsLink}>{p.docs} documents partagés</span>
-                                </div>
-                                <div className={styles.actions}>
-                                    <button className={styles.btnDossier} onClick={() => onPatientFile && onPatientFile()}>Voir le dossier</button>
-                                    {p.status === 'active' && (
-                                        <button className={styles.btnConsult} onClick={() => onPatientFile && onPatientFile()}>
-                                            <Play size={13} /> Démarrer consultation
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
-
-                {/* ── Pagination ── */}
-                <div className={styles.pagination}>
-                    <span className={styles.paginationInfo}>Affichage 1-10 sur 28 patients</span>
-                    <div className={styles.pages}>
-                        <button
-                            className={styles.pageBtn}
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                        >
-                            <ChevronLeft size={15} />
-                        </button>
-                        {[1, 2, 3].map(n => (
-                            <button
-                                key={n}
-                                className={`${styles.pageBtn} ${page === n ? styles.pageBtnActive : ''}`}
-                                onClick={() => setPage(n)}
-                            >
-                                {n}
-                            </button>
-                        ))}
-                        <button
-                            className={styles.pageBtn}
-                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                        >
-                            <ChevronRight size={15} />
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
     )

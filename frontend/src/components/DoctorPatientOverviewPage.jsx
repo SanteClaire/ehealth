@@ -4,15 +4,11 @@ import {
     FileText, Bell, Search, Mic, ClipboardList,
     PenLine, Plus, Share2, AlertTriangle, Clock
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinPatientDetail } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
+import DoctorSidebar from './DoctorSidebar'
 import styles from './DoctorPatientOverviewPage.module.css'
-import logo from '../assets/logo2.png'
-
-const navLinks = [
-    { label: 'Tableau de bord', id: 'dashboard' },
-    { label: 'Mes Patients', id: 'patients' },
-    { label: 'Planning', id: 'planning' },
-    { label: 'Paramètres', id: 'settings' }
-]
 
 const docCards = [
     {
@@ -65,7 +61,13 @@ const aiPoints = [
     },
 ]
 
-export default function DoctorPatientOverviewPage({ onBack, onLogout, onNavigate }) {
+export default function DoctorPatientOverviewPage({ patientId, onBack, onLogout, onNavigate }) {
+    const [patient, setPatient] = useState(null)
+    useEffect(() => {
+        if (!patientId) return
+        fetchMedecinPatientDetail(patientId).then(r => { if (r.success) setPatient(r.data) })
+    }, [patientId])
+    const { t } = useLanguage()
     const [seconds, setSeconds] = useState(34 * 60 + 12)
 
     useEffect(() => {
@@ -81,37 +83,33 @@ export default function DoctorPatientOverviewPage({ onBack, onLogout, onNavigate
     const time = fmt(seconds)
 
     return (
-        <div className={styles.page}>
+        <div className={styles.layout}>
+            <DoctorSidebar activeId="patients" onNavigate={onNavigate} onLogout={onLogout} />
+            <div className={styles.page}>
 
-            {/* ── Navbar ── */}
+            {/* ── Top bar (comme espace patient) ── */}
             <header className={styles.navbar}>
                 <div className={styles.navLeft}>
-                    <img src={logo} alt="SantéClaire" className={styles.navLogo} />
-                    <nav className={styles.navLinks}>
-                        {navLinks.map(l => (
-                            <button
-                                key={l.id}
-                                onClick={() => onNavigate && onNavigate(l.id)}
-                                className={`${styles.navLink} ${l.id === 'dashboard' ? styles.navActive : ''}`}
-                            >
-                                {l.label}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-                <div className={styles.navRight}>
                     <div className={styles.searchBox}>
                         <Search size={13} className={styles.searchIcon} />
                         <input className={styles.searchInput} placeholder="Search patient..." />
                     </div>
-                    <button className={styles.bellBtn}><Bell size={18} /></button>
-                    <div className={styles.doctorBlock}>
+                </div>
+                <div className={styles.navRight}>
+                    <LanguageSwitcher />
+                    <button type="button" className={styles.bellBtn}><Bell size={18} /></button>
+                    <button
+                        type="button"
+                        className={styles.doctorBlock}
+                        onClick={() => onNavigate && onNavigate('profil')}
+                        aria-label={t('doctor.navMyProfile')}
+                    >
                         <div>
                             <div className={styles.doctorName}>Dr. Smith</div>
                             <div className={styles.doctorRole}>General Practitioner</div>
                         </div>
                         <div className={styles.doctorAvat}>DS</div>
-                    </div>
+                    </button>
                 </div>
             </header>
 
@@ -306,6 +304,7 @@ export default function DoctorPatientOverviewPage({ onBack, onLogout, onNavigate
             {/* ── FAB ── */}
             <button className={styles.fab}><Plus size={22} /></button>
 
+            </div>
         </div>
     )
 }

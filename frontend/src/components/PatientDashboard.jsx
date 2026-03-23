@@ -1,218 +1,353 @@
-import { useState, useEffect } from 'react'
-import { 
-    Home, 
-    Folder, 
-    Calendar, 
-    MessageSquare, 
-    Settings, 
-    LogOut,
-    FileText,
-    Pill,
-    Bot,
-    Bell,
-    User,
-    ChevronRight
+import { useState, useRef, useEffect } from 'react'
+import {
+    LayoutDashboard, FileText, Users, MessageCircle, Settings,
+    LogOut, Search, Bell, Plus, Upload, ChevronRight, MessageSquare,
+    AlertCircle, Clock, Mail, FolderOpen, Bot,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchPatientStats, fetchPatientConsultations, fetchPatientDocuments, fetchPatientOrdonnances } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientDashboard.module.css'
-import logo from '../assets/logo2.png'
-import { authService } from '../services/authService'
+import logo from '../assets/logo.png'
 
-export default function PatientDashboard({ user, onLogout }) {
-    const [activeTab, setActiveTab] = useState('dashboard')
-    const [stats, setStats] = useState({ rdvCount: 0, ordonnancesCount: 0, documentsCount: 0, messagesCount: 0 })
+const SUPPORT_EMAIL = 'mailto:support@santeclaire.fr'
+
+export default function PatientDashboard({ user, onLogout, onNavigate }) {
+    const { t } = useLanguage()
+    const fileInputRef = useRef(null)
+    const [stats, setStats] = useState(null)
     const [consultations, setConsultations] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [documents, setDocuments] = useState([])
+    const [ordonnances, setOrdonnances] = useState([])
 
     useEffect(() => {
-        loadData()
+        fetchPatientStats().then(r => r.success && setStats(r.data))
+        fetchPatientConsultations().then(r => r.success && setConsultations(r.data))
+        fetchPatientDocuments().then(r => r.success && setDocuments(r.data))
+        fetchPatientOrdonnances().then(r => r.success && setOrdonnances(r.data))
     }, [])
 
-    const loadData = async () => {
-        try {
-            const [statsRes, consultRes] = await Promise.all([
-                authService.getPatientStats(),
-                authService.getPatientConsultations()
-            ])
-            if (statsRes.success) setStats(statsRes.data)
-            if (consultRes.success) setConsultations(consultRes.data)
-        } catch (err) {
-            console.error('Failed to load patient data', err)
-        } finally {
-            setLoading(false)
-        }
+    const userName = user?.firstName || 'Patient'
+    const userFullName = user ? `${user.firstName} ${user.lastName}` : 'Patient'
+    const userInitials = user ? `${(user.firstName?.[0] || '')}${(user.lastName?.[0] || '')}`.toUpperCase() : 'P'
+
+    // Build "at a glance" cards from real data
+    const atAGlance = []
+    if (ordonnances.length > 0) {
+        const latest = ordonnances[0]
+        atAGlance.push({
+            icon: 'document',
+            title: `Ordonnance Dr. ${latest.medecin.lastName}`,
+            statusType: 'new',
+            desc: `Émise le ${new Date(latest.dateEmission).toLocaleDateString('fr-FR')}`,
+            onAction: () => onNavigate && onNavigate('documents'),
+        })
+    }
+    if (consultations.length > 0) {
+        const next = consultations.find(c => c.estActive) || consultations[0]
+        atAGlance.push({
+            icon: 'appointment',
+            title: `Dr. ${next.medecin.lastName} — ${next.medecin.specialite}`,
+            statusType: next.estActive ? 'new' : 'scheduled',
+            desc: new Date(next.dateDebut).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }),
+            onAction: () => onNavigate && onNavigate('documents'),
+        })
+    }
+    if (atAGlance.length === 0) {
+        atAGlance.push({
+            icon: 'document',
+            title: 'Aucune activité récente',
+            statusType: 'scheduled',
+            desc: 'Vos documents et ordonnances apparaîtront ici.',
+            onAction: () => onNavigate && onNavigate('documents'),
+        })
     }
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return { day: '--', month: '---', time: '--:--' }
-        const date = new Date(dateStr)
-        return {
-            day: date.getDate().toString().padStart(2, '0'),
-            month: date.toLocaleDateString('fr-FR', { month: 'short' }),
-            time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-        }
-    }
-
-    // Filter future consultations
-    const upcomingConsultations = consultations.filter(c => new Date(c.dateDebut) > new Date())
-
-    const menuItems = [
-        { id: 'dashboard', icon: Home, label: 'Tableau de bord' },
-        { id: 'dossier', icon: Folder, label: 'Mon dossier médical' },
-        { id: 'rdv', icon: Calendar, label: 'Mes rendez-vous' },
-        { id: 'ordonnances', icon: FileText, label: 'Mes ordonnances' },
-        { id: 'messages', icon: MessageSquare, label: 'Messages' },
-        { id: 'assistant', icon: Bot, label: 'Assistant IA' },
-        { id: 'settings', icon: Settings, label: 'Paramètres' },
+    const navItems = [
+        { icon: LayoutDashboard, label: t('sidebar.dashboard'), id: 'dashboard', active: true },
+        { icon: FileText, label: t('sidebar.documents'), id: 'documents' },
+        { icon: Users, label: t('sidebar.family'), id: 'famille' },
+        { icon: MessageCircle, label: t('sidebar.ai'), id: 'ia' },
+        { icon: Settings, label: t('sidebar.settings'), id: 'settings' },
     ]
 
+    const handleLogout = () => {
+        onLogout && onLogout()
+    }
+
+    const handleFilesSelected = (e) => {
+        const files = e.target.files
+        if (files?.length) {
+            console.info('[SantéClaire] Fichiers sélectionnés pour import :', [...files].map((f) => f.name))
+        }
+        e.target.value = ''
+    }
+
     return (
-        <div className={styles.container}>
-            {/* Sidebar */}
+        <div className={styles.layout}>
+            {/* ── Sidebar ── */}
             <aside className={styles.sidebar}>
-                <div className={styles.logoSection}>
-                    <img src={logo} alt="SantéClaire" className={styles.logo} />
+                <div className={styles.sidebarTop}>
+                    <div className={styles.brand}>
+                        <img src={logo} alt="SantéClaire" className={styles.logo} />
+                    </div>
+
+                    <nav className={styles.nav}>
+                        {navItems.map((item) => {
+                            const Icon = item.icon
+                            return (
+                                <button
+                                    key={item.label}
+                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
+                                    onClick={() => onNavigate && onNavigate(item.id)}
+                                >
+                                    <Icon size={17} className={styles.navIcon} />
+                                    {item.label}
+                                </button>
+                            )
+                        })}
+                    </nav>
                 </div>
 
-                <nav className={styles.nav}>
-                    {menuItems.map(item => (
-                        <button
-                            key={item.id}
-                            className={`${styles.navItem} ${activeTab === item.id ? styles.active : ''}`}
-                            onClick={() => setActiveTab(item.id)}
-                        >
-                            <item.icon size={20} />
-                            <span>{item.label}</span>
-                        </button>
-                    ))}
-                </nav>
-
-                <button className={styles.logoutBtn} onClick={onLogout}>
-                    <LogOut size={20} />
-                    <span>Déconnexion</span>
-                </button>
+                <div className={styles.sidebarBottom}>
+                    <button className={styles.btnLogout} onClick={handleLogout}>
+                        <LogOut size={16} /> {t('sidebar.logout')}
+                    </button>
+                </div>
             </aside>
 
-            {/* Main Content */}
-            <main className={styles.main}>
-                {/* Header */}
-                <header className={styles.header}>
-                    <div className={styles.headerLeft}>
-                        <h1 className={styles.pageTitle}>Tableau de bord</h1>
-                        <p className={styles.welcomeText}>
-                            Bienvenue, <strong>{user?.firstName || 'Patient'}</strong> !
-                        </p>
+            {/* ── Main ── */}
+            <div className={styles.main}>
+                {/* ── Top bar ── */}
+                <header className={styles.topbar}>
+                    <div className={styles.searchWrap}>
+                        <Search size={16} className={styles.searchIcon} />
+                        <input
+                            className={styles.search}
+                            type="text"
+                            placeholder={t('dashboard.searchPlaceholder')}
+                        />
                     </div>
-                    <div className={styles.headerRight}>
-                        <button className={styles.notifBtn}>
-                            <Bell size={20} />
-                            {stats.messagesCount > 0 && <span className={styles.notifBadge}>{stats.messagesCount}</span>}
+                    <div className={styles.topRight}>
+                        <LanguageSwitcher />
+                        <button className={styles.iconBtn}>
+                            <Bell size={17} />
                         </button>
-                        <div className={styles.userAvatar}>
-                            <User size={20} />
-                        </div>
+                        <button
+                            type="button"
+                            className={styles.profileBlock}
+                            onClick={() => onNavigate && onNavigate('profil')}
+                            aria-label={t('sidebar.profile')}
+                        >
+                            <div className={styles.profileInfo}>
+                                <span className={styles.profileName}>{userFullName}</span>
+                                <span className={styles.profileRole}>{t('common.patientId')}</span>
+                            </div>
+                            <div className={styles.profileAvatar}>{userInitials}</div>
+                        </button>
                     </div>
                 </header>
 
-                {/* Dashboard Content */}
+                {/* ── Content ── */}
                 <div className={styles.content}>
-                    {/* Quick Stats */}
-                    <div className={styles.statsGrid}>
-                        <div className={styles.statCard}>
-                            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #0d7377, #14a3a8)' }}>
-                                <Calendar size={24} />
-                            </div>
-                            <div className={styles.statInfo}>
-                                <span className={styles.statValue}>{stats.rdvCount}</span>
-                                <span className={styles.statLabel}>RDV à venir</span>
-                            </div>
-                        </div>
-                        <div className={styles.statCard}>
-                            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                                <FileText size={24} />
-                            </div>
-                            <div className={styles.statInfo}>
-                                <span className={styles.statValue}>{stats.ordonnancesCount}</span>
-                                <span className={styles.statLabel}>Ordonnances actives</span>
-                            </div>
-                        </div>
-                        <div className={styles.statCard}>
-                            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)' }}>
-                                <Folder size={24} />
-                            </div>
-                            <div className={styles.statInfo}>
-                                <span className={styles.statValue}>{stats.documentsCount}</span>
-                                <span className={styles.statLabel}>Documents</span>
+                    {/* Stats bar */}
+                    {stats && (
+                        <div className={styles.familyTabs}>
+                            <div className={styles.dossiertLabel}>{t('dashboard.activeFile')}</div>
+                            <div className={styles.tabs}>
+                                <span className={styles.tab} style={{ cursor: 'default', opacity: 0.9 }}>
+                                    <span className={styles.dot} />
+                                    {stats.ordonnancesCount} ordonnance{stats.ordonnancesCount !== 1 ? 's' : ''}
+                                </span>
+                                <span className={styles.tab} style={{ cursor: 'default', opacity: 0.9 }}>
+                                    <span className={styles.dot} />
+                                    {stats.documentsCount} document{stats.documentsCount !== 1 ? 's' : ''}
+                                </span>
+                                <span className={styles.tab} style={{ cursor: 'default', opacity: 0.9 }}>
+                                    <span className={styles.dot} />
+                                    {consultations.length} consultation{consultations.length !== 1 ? 's' : ''}
+                                </span>
                             </div>
                         </div>
-                        <div className={styles.statCard}>
-                            <div className={styles.statIcon} style={{ background: 'linear-gradient(135deg, #10b981, #34d399)' }}>
-                                <MessageSquare size={24} />
-                            </div>
-                            <div className={styles.statInfo}>
-                                <span className={styles.statValue}>{stats.messagesCount}</span>
-                                <span className={styles.statLabel}>Message non lu</span>
-                            </div>
+                    )}
+
+                    {/* Welcome section */}
+                    <div className={styles.welcomeSection}>
+                        <h1 className={styles.greeting}>
+                            Bonjour, {userName}
+                        </h1>
+                        <p className={styles.subgreeting}>
+                            Heureux de vous revoir. Voici un aperçu de votre santé aujourd'hui.
+                        </p>
+                    </div>
+
+                    {/* At a glance section */}
+                    <div className={styles.atGlanceSection}>
+                        <h2 className={styles.sectionTitle}>
+                            <AlertCircle size={18} /> {t('dashboard.atAGlance')}
+                        </h2>
+                        <div className={styles.atGlanceGrid}>
+                            {atAGlance.map((item, i) => (
+                                <div key={i} className={styles.atGlanceCard}>
+                                    <div className={styles.cardHeader}>
+                                        <div className={styles.cardIcon}>
+                                            {item.icon === 'document' && <FileText size={22} />}
+                                            {item.icon === 'appointment' && <Clock size={22} />}
+                                        </div>
+                                        <span className={`${styles.statusBadge} ${styles[`status_${item.statusType}`]}`}>
+                                            {item.statusType === 'new' ? 'Nouveau' : 'Planifié'}
+                                        </span>
+                                    </div>
+                                    <h3 className={styles.cardTitle}>{item.title}</h3>
+                                    <p className={styles.cardDesc}>{item.desc}</p>
+                                    <button
+                                        type="button"
+                                        className={styles.cardAction}
+                                        onClick={item.onAction}
+                                    >
+                                        {t('dashboard.view')}
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    <section className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Actions rapides</h2>
-                        <div className={styles.actionsGrid}>
-                            <button className={styles.actionCard}>
-                                <Calendar size={32} className={styles.actionIcon} />
-                                <span>Prendre RDV</span>
-                                <ChevronRight size={16} />
+                    {/* Sharing preferences */}
+                    <div className={styles.sharingSection}>
+                        <span className={styles.sharedBadge}>{t('dashboard.shared')}</span>
+                        <span className={styles.privateBadge}>{t('dashboard.makePrivate')}</span>
+                        <p className={styles.sharingText}>
+                            {t('dashboard.sharingDefault')}{' '}
+                            <button
+                                type="button"
+                                className={styles.link}
+                                onClick={() => onNavigate && onNavigate('settings')}
+                            >
+                                {t('dashboard.managePreferences')}
                             </button>
-                            <button className={styles.actionCard}>
-                                <Bot size={32} className={styles.actionIcon} />
-                                <span>Parler à l'Assistant IA</span>
-                                <ChevronRight size={16} />
-                            </button>
-                            <button className={styles.actionCard}>
-                                <Folder size={32} className={styles.actionIcon} />
-                                <span>Ajouter un document</span>
-                                <ChevronRight size={16} />
-                            </button>
-                            <button className={styles.actionCard}>
-                                <Pill size={32} className={styles.actionIcon} />
-                                <span>Mes traitements</span>
-                                <ChevronRight size={16} />
-                            </button>
-                        </div>
-                    </section>
+                        </p>
+                    </div>
 
-                    {/* Upcoming Appointments */}
-                    <section className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Prochains rendez-vous</h2>
-                        <div className={styles.appointmentsList}>
-                            {loading ? (
-                                <p>Chargement...</p>
-                            ) : upcomingConsultations.length === 0 ? (
-                                <p className={styles.emptyText}>Aucun rendez-vous à venir</p>
-                            ) : (
-                                upcomingConsultations.map(consultation => {
-                                    const { day, month, time } = formatDate(consultation.dateDebut)
-                                    return (
-                                        <div key={consultation.id} className={styles.appointmentCard}>
-                                            <div className={styles.appointmentDate}>
-                                                <span className={styles.day}>{day}</span>
-                                                <span className={styles.month}>{month}</span>
-                                            </div>
-                                            <div className={styles.appointmentInfo}>
-                                                <strong>Dr. {consultation.medecin.firstName} {consultation.medecin.lastName}</strong>
-                                                <span>{consultation.medecin.specialite || 'Médecin'}</span>
-                                                <span className={styles.time}>{time}</span>
-                                            </div>
-                                            <button className={styles.detailsBtn}>Détails</button>
-                                        </div>
-                                    )
-                                })
-                            )}
-                        </div>
-                    </section>
+                    {/* Timeline from real documents */}
+                    <div className={styles.timeline}>
+                        {documents.map((doc, i) => (
+                            <div key={i} className={styles.timelineItem}>
+                                <div className={styles.timelineMarker} />
+                                <div className={styles.timelineContent}>
+                                    <span className={styles.timelineDate}>{doc.type}</span>
+                                    <h3 className={styles.timelineTitle}>{doc.nomOriginal}</h3>
+                                    <p className={styles.timelineProvider}>
+                                        {doc.createurMedecin ? `Dr. ${doc.createurMedecin.lastName} — ${doc.createurMedecin.specialite}` : 'Source inconnue'}
+                                    </p>
+                                    <div className={styles.timelineBadges}>
+                                        <span className={styles.badge}>
+                                            {doc.estPartage ? 'Partagé' : 'Privé'}
+                                        </span>
+                                    </div>
+                                    {doc.resumeIA && (
+                                        <p style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 6, fontStyle: 'italic' }}>
+                                            IA: {doc.resumeIA}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        {documents.length === 0 && (
+                            <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>Aucun document médical pour le moment.</p>
+                        )}
+                    </div>
                 </div>
-            </main>
+            </div>
+
+            {/* ── Right panel ── */}
+            <aside className={styles.rightPanel}>
+                {/* Upload section */}
+                <div className={styles.uploadCard}>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.heic"
+                        multiple
+                        className={styles.visuallyHidden}
+                        aria-hidden
+                        tabIndex={-1}
+                        onChange={handleFilesSelected}
+                    />
+                    <h3 className={styles.panelTitle}>{t('dashboard.addDocument')}</h3>
+                    <button
+                        type="button"
+                        className={styles.uploadZone}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <Upload size={32} className={styles.uploadIcon} />
+                    </button>
+                    <p className={styles.uploadText}>
+                        {t('dashboard.dragDrop')}<br />
+                        {t('dashboard.uploadFormats')}
+                    </p>
+                    <button
+                        type="button"
+                        className={styles.browseBtn}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        {t('dashboard.browseFiles')}
+                    </button>
+                </div>
+
+                {/* AI Assistant */}
+                <div className={styles.aiCard}>
+                    <div className={styles.aiHeader}>
+                        <MessageCircle size={20} />
+                        <div>
+                            <h3 className={styles.aiTitle}>{t('dashboard.aiAssistant')}</h3>
+                            <p className={styles.aiSubtitle}>{t('dashboard.available247')}</p>
+                        </div>
+                    </div>
+                    <p className={styles.aiDesc}>
+                        {t('dashboard.aiDesc')}
+                    </p>
+                    <button
+                        type="button"
+                        className={styles.btnDiscuss}
+                        onClick={() => onNavigate && onNavigate('ia')}
+                    >
+                        <MessageSquare size={14} /> {t('dashboard.startDiscussion')}
+                    </button>
+                </div>
+
+                {/* Patient info card */}
+                {user && (
+                    <div className={styles.familyCard}>
+                        <h3 className={styles.panelTitle}>Mon profil</h3>
+                        <div className={styles.familyAvatars}>
+                            <div className={styles.avatar}>{userInitials}</div>
+                        </div>
+                        <p className={styles.familyText}>
+                            {user.groupeSanguin && <>Groupe sanguin : <strong>{user.groupeSanguin}</strong><br /></>}
+                            {user.allergies && <>Allergies : {user.allergies}<br /></>}
+                            {user.telephone && <>Tél : {user.telephone}</>}
+                        </p>
+                        <button
+                            type="button"
+                            className={styles.familyDashboardCta}
+                            onClick={() => onNavigate && onNavigate('profil')}
+                        >
+                            Voir mon profil
+                        </button>
+                    </div>
+                )}
+
+                {/* Support */}
+                <div className={styles.supportCard}>
+                    <h3 className={styles.supportTitle}>{t('dashboard.supportHealth')}</h3>
+                    <p className={styles.supportText}>
+                        {t('dashboard.needHelp')}
+                    </p>
+                    <a className={styles.btnSupport} href={SUPPORT_EMAIL}>
+                        {t('dashboard.contactAdvisor')}
+                    </a>
+                </div>
+            </aside>
         </div>
     )
 }

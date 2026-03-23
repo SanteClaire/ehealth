@@ -98,6 +98,20 @@ class SecurityController extends AbstractApiController
             $data['specialite'] = $user->getSpecialite();
             $data['adresseCabinet'] = $user->getAdresseCabinet();
             $data['telephoneCabinet'] = $user->getTelephoneCabinet();
+            $data['horaires'] = $user->getHoraires();
+            $data['tarifConsultation'] = $user->getTarifConsultation();
+            $data['estValide'] = $user->isEstValide();
+        }
+
+        // Ajouter les champs spécifiques Patient
+        if ($user instanceof \App\Entity\Patient) {
+            $data['numeroSecuriteSociale'] = $user->getNumeroSecuriteSociale();
+            $data['dateNaissance'] = $user->getDateNaissance()?->format('Y-m-d');
+            $data['adresse'] = $user->getAdresse();
+            $data['telephone'] = $user->getTelephone();
+            $data['groupeSanguin'] = $user->getGroupeSanguin();
+            $data['allergies'] = $user->getAllergies();
+            $data['antecedents'] = $user->getAntecedents();
         }
 
         return $this->apiResponse(true, $data, 'Current user profile');

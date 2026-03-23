@@ -1,115 +1,82 @@
 import { useState, useEffect } from 'react'
 import {
-    LayoutDashboard, Users, Calendar, MessageSquare, BarChart2,
     LogOut, Play, FilePlus, FileText, Mic, PenLine,
     CheckCircle2, Circle, AlertCircle, Download, ExternalLink,
-    Lock, ChevronRight, Settings, User
+    Lock, ChevronRight, Settings, User,
 } from 'lucide-react'
+import { useLanguage } from '../hooks/useLanguage'
+import { fetchMedecinPatientDetail } from '../services/api'
+import LanguageSwitcher from './LanguageSwitcher'
 import styles from './DoctorPatientFilePage.module.css'
-import logo from '../assets/logo2.png'
+import logo from '../assets/logo.png'
 import SendReportModal from './SendReportModal'
+import DoctorSidebar from './DoctorSidebar'
 
-const navItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard' },
-    { icon: Users, label: 'Mes Patients', id: 'patients', active: true },
-    { icon: Calendar, label: 'Planning', id: 'planning' },
-    { icon: MessageSquare, label: 'Messages', id: 'messages' },
-    { icon: BarChart2, label: 'Rapports', id: 'reports' },
-]
+function getAge(dateNaissance) {
+    if (!dateNaissance) return null
+    const b = new Date(dateNaissance)
+    const now = new Date()
+    let age = now.getFullYear() - b.getFullYear()
+    if (now.getMonth() < b.getMonth() || (now.getMonth() === b.getMonth() && now.getDate() < b.getDate())) age--
+    return age
+}
 
-const history = [
-    {
-        type: 'consult',
-        color: '#3B82F6',
-        title: 'General Consultation',
-        date: 'Oct 12, 2023',
-        desc: 'Routine check-up, blood glucose monitoring. Patient reported slight fatigue.',
-        doctor: 'DR. SARAH MILLER',
-    },
-    {
-        type: 'surgery',
-        color: '#8B5CF6',
-        title: 'Left Hip Arthroplasty',
-        date: 'Aug 05, 2023',
-        desc: 'Total hip replacement surgery. St. Vincent Hospital. Post-op follow-up recommended.',
-        doctor: null,
-    },
-    {
-        type: 'urgency',
-        color: '#EF4444',
-        title: 'Acute Hyperglycemia Episode',
-        date: 'Jan 19, 2023',
-        desc: 'ER Admission. Glucose 320 mg/dL. Stabilized with insulin. Meds adjusted.',
-        doctor: null,
-    },
-]
-
-const sharedDocs = [
-    { name: 'Bilan sanguin', meta: 'LABORATOIRE — 12 OCT 2023', status: 'shared' },
-    { name: 'Radio hanche', meta: 'IMAGERIE — 24 SEP 2023', status: 'shared' },
-    { name: 'Compte-rendu', meta: '1 document masqué par le patient', status: 'hidden' },
-]
-
-const recentDocs = [
-    { icon: '🔬', name: 'Blood Analysis (Full)', meta: 'OCT 10, 2023 • PDF • 1.2MB', action: 'download' },
-    { icon: '🦴', name: 'X-Ray: Left Hip Follow-up', meta: 'SEP 24, 2023 • DICOM', action: 'open' },
-    { icon: '❤️', name: 'Cardiology Stress Test', meta: 'JUL 12, 2023 • PDF', action: 'download' },
-]
-
-const cercle = [
-    { initial: 'M', name: 'Marie Dupont', role: 'Médecin généraliste', color: '#0EA5B0' },
-    { initial: 'C', name: 'Dr. Claude Bernard', role: 'Médecin généraliste', color: '#6B7280' },
-]
-
-export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, onConsult, onMedicalRecords, onPatientOverview, onNavigate }) {
+export default function DoctorPatientFilePage({ patientId, onBack, onPatients, onLogout, onConsult, onMedicalRecords, onPatientOverview, onNavigate }) {
+    const { t } = useLanguage()
     const [seconds, setSeconds] = useState(34 * 60 + 12)
     const [showModal, setShowModal] = useState(false)
+    const [patient, setPatient] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (!patientId) { setLoading(false); return }
+        fetchMedecinPatientDetail(patientId).then(r => {
+            if (r.success) setPatient(r.data)
+            setLoading(false)
+        })
+    }, [patientId])
 
     useEffect(() => {
         if (seconds <= 0) return
-        const t = setInterval(() => setSeconds(s => s - 1), 1000)
-        return () => clearInterval(t)
+        const timer = setInterval(() => setSeconds(s => s - 1), 1000)
+        return () => clearInterval(timer)
     }, [seconds])
 
     const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 
+    if (loading) return <div style={{ padding: 40, textAlign: 'center' }}>Chargement du dossier patient...</div>
+    if (!patient) return <div style={{ padding: 40, textAlign: 'center' }}>Aucun patient sélectionné. <button onClick={onBack}>Retour</button></div>
+
+    const initials = `${(patient.firstName?.[0] || '')}${(patient.lastName?.[0] || '')}`.toUpperCase()
+    const age = getAge(patient.dateNaissance)
+
+    // Build history from consultations
+    const history = (patient.consultations || []).map(c => ({
+        type: c.estActive ? 'urgency' : 'consult',
+        color: c.estActive ? '#EF4444' : '#3B82F6',
+        title: c.estActive ? 'Consultation en cours' : 'Consultation terminée',
+        date: new Date(c.dateDebut).toLocaleDateString('fr-FR'),
+        desc: c.dateFin ? `Durée: ${Math.round((new Date(c.dateFin) - new Date(c.dateDebut)) / 60000)} min` : 'En cours',
+    }))
+
+    // Build shared docs from patient documents
+    const sharedDocs = (patient.documents || []).map(d => ({
+        name: d.nomOriginal,
+        meta: `${d.type} — ${d.mimeType}`,
+        status: d.estPartage ? 'shared' : 'hidden',
+    }))
+
+    // Recent docs
+    const recentDocs = (patient.documents || []).slice(0, 3).map(d => ({
+        icon: d.type === 'ANALYSE' ? '🔬' : d.type === 'RADIOGRAPHIE' ? '🦴' : '📄',
+        name: d.nomOriginal,
+        meta: `${d.type} • ${d.mimeType}`,
+        action: 'download',
+    }))
+
     return (
         <div className={styles.layout}>
-
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarTop}>
-                    <div className={styles.brand}>
-                        <img src={logo} alt="SantéClaire" className={styles.logo} />
-                        <span className={styles.brandSub}>MEDICAL PLATFORM</span>
-                    </div>
-                    <nav className={styles.nav}>
-                        {navItems.map((item) => {
-                            const Icon = item.icon
-                            return (
-                                <button
-                                    key={item.id}
-                                    onClick={() => {
-                                        if (onNavigate && item.id) onNavigate(item.id)
-                                    }}
-                                    className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-                                >
-                                    <Icon size={17} />
-                                    {item.label}
-                                </button>
-                            )
-                        })}
-                    </nav>
-                </div>
-                <div className={styles.sidebarBottom}>
-                    <button className={styles.navItem} onClick={() => onNavigate && onNavigate('settings')}>
-                        <Settings size={17} /> Paramètres
-                    </button>
-                    <button className={styles.logoutBtn} onClick={onLogout}>
-                        <LogOut size={16} /> Déconnexion
-                    </button>
-                </div>
-            </aside>
+            <DoctorSidebar activeId="patients" onNavigate={onNavigate} onLogout={onLogout} />
 
             {/* ── Main ── */}
             <div className={styles.main}>
@@ -118,36 +85,30 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                 <div className={styles.patientHeader}>
                     <div className={styles.patientLeft}>
                         <div className={styles.avatarWrap}>
-                            <div className={styles.avatar}>JD</div>
+                            <div className={styles.avatar}>{initials}</div>
                             <span className={styles.onlineDot} />
                         </div>
 
                         <div className={styles.patientMeta}>
                             <div className={styles.nameRow}>
-                                <h1 className={styles.patientName}>Jean Dupont</h1>
-                                <span className={styles.statusPill}>EN SALLE D'ATTENTE</span>
+                                <h1 className={styles.patientName}>{patient.firstName} {patient.lastName}</h1>
+                                <span className={styles.statusPill}>DOSSIER PATIENT</span>
                             </div>
                             <div className={styles.detailRow}>
-                                <span>65 years old</span>
-                                <span className={styles.dot}>•</span>
-                                <span>Male</span>
-                                <span className={styles.dot}>•</span>
-                                <span className={styles.bloodType}>Blood Type: <strong>O+</strong></span>
+                                {age && <span>{age} ans</span>}
+                                {patient.groupeSanguin && <><span className={styles.dot}>•</span><span className={styles.bloodType}>Groupe : <strong>{patient.groupeSanguin}</strong></span></>}
                             </div>
                             <div className={styles.detailRow}>
-                                <span>📞 +33 6 12 34 56 78</span>
-                                <span className={styles.divider}>|</span>
-                                <span>📍 Paris, France</span>
+                                {patient.telephone && <span>📞 {patient.telephone}</span>}
+                                {patient.adresse && <><span className={styles.divider}>|</span><span>📍 {patient.adresse}</span></>}
                             </div>
                         </div>
                     </div>
 
                     <div className={styles.patientActions}>
+                        <LanguageSwitcher />
                         <button className={styles.btnPrimary} onClick={() => onConsult && onConsult()}>
                             <Play size={14} /> Démarrer la consultation
-                        </button>
-                        <button className={styles.btnSecondary}>
-                            <FilePlus size={14} /> Ajouter une note
                         </button>
                         <button className={styles.btnSecondary} onClick={() => onMedicalRecords && onMedicalRecords()}>
                             <FileText size={14} /> Voir les documents
@@ -180,40 +141,43 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                         {/* AI Summary */}
                         <div className={styles.aiCard}>
                             <div className={styles.aiHeader}>
-                                <span className={styles.aiTitle}>✦ AI CLINICAL SUMMARY</span>
+                                <span className={styles.aiTitle}>RÉSUMÉ CLINIQUE</span>
                                 <button className={styles.aiSettings}><Settings size={15} /></button>
                             </div>
                             <div className={styles.aiGrid}>
                                 <div className={styles.aiBlock}>
-                                    <div className={styles.aiBlockLabel}>CHRONIC CONDITIONS</div>
+                                    <div className={styles.aiBlockLabel}>ANTÉCÉDENTS</div>
                                     <div className={styles.aiBlockText}>
-                                        Type 2 Diabetes<br />(controlled via medication & diet)
+                                        {patient.antecedents || 'Aucun antécédent renseigné'}
                                     </div>
                                 </div>
-                                <div className={styles.aiBlock}>
-                                    <div className={styles.aiBlockLabel}>RECENT SURGERIES</div>
-                                    <div className={styles.aiBlockText}>
-                                        Hip Replacement (Left), Oct 2023. Fully recovered.
+                                {patient.allergies && (
+                                    <div className={`${styles.aiBlock} ${styles.aiBlockCritical}`}>
+                                        <div className={styles.aiBlockLabelRed}>ALLERGIES</div>
+                                        <div className={styles.aiBlockTextRed}>
+                                            {patient.allergies}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className={`${styles.aiBlock} ${styles.aiBlockCritical}`}>
-                                    <div className={styles.aiBlockLabelRed}>CRITICAL ALLERGIES</div>
-                                    <div className={styles.aiBlockTextRed}>
-                                        Penicillin<br />(Anaphylaxis risk)
+                                )}
+                                {patient.documents?.some(d => d.resumeIA) && (
+                                    <div className={styles.aiBlock}>
+                                        <div className={styles.aiBlockLabel}>RÉSUMÉ IA DOCUMENTS</div>
+                                        <div className={styles.aiBlockText}>
+                                            {patient.documents.filter(d => d.resumeIA).map(d => d.resumeIA).join(' | ')}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
-                            <button className={styles.aiLink}>View detailed AI insight logs →</button>
                         </div>
 
                         {/* Historique */}
                         <div className={styles.historySection}>
                             <h2 className={styles.sectionTitle}>Historique médical</h2>
+                            {history.length === 0 && <p style={{ color: '#9CA3AF', fontSize: '0.9rem' }}>Aucune consultation enregistrée.</p>}
                             {history.map((h, i) => (
                                 <div key={i} className={styles.historyItem}>
                                     <div className={styles.historyIcon} style={{ background: h.color }}>
                                         {h.type === 'consult' && <User size={14} color="#fff" />}
-                                        {h.type === 'surgery' && <PenLine size={14} color="#fff" />}
                                         {h.type === 'urgency' && <AlertCircle size={14} color="#fff" />}
                                     </div>
                                     <div className={styles.historyContent}>
@@ -222,12 +186,35 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                                             <span className={styles.historyDate}>{h.date}</span>
                                         </div>
                                         <p className={styles.historyDesc}>{h.desc}</p>
-                                        {h.doctor && (
-                                            <span className={styles.historyDoctor}>{h.doctor}</span>
-                                        )}
                                     </div>
                                 </div>
                             ))}
+
+                            {/* Ordonnances */}
+                            {patient.ordonnances?.length > 0 && (
+                                <>
+                                    <h2 className={styles.sectionTitle} style={{ marginTop: 24 }}>Ordonnances</h2>
+                                    {patient.ordonnances.map((o, i) => (
+                                        <div key={i} className={styles.historyItem}>
+                                            <div className={styles.historyIcon} style={{ background: '#8B5CF6' }}>
+                                                <PenLine size={14} color="#fff" />
+                                            </div>
+                                            <div className={styles.historyContent}>
+                                                <div className={styles.historyTop}>
+                                                    <strong className={styles.historyTitle}>{o.numero}</strong>
+                                                    <span className={styles.historyDate}>{o.dateEmission}</span>
+                                                </div>
+                                                <p className={styles.historyDesc}>
+                                                    {o.instructions}
+                                                    {o.lignes?.map((l, j) => (
+                                                        <span key={j}><br/>— {l.medicament} {l.dosage} : {l.posologie} ({l.duree})</span>
+                                                    ))}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -241,6 +228,7 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                                 <Lock size={13} color="#9CA3AF" />
                             </div>
                             <p className={styles.sideCardSub}>Le patient contrôle les documents visibles</p>
+                            {sharedDocs.length === 0 && <p style={{ color: '#9CA3AF', fontSize: '0.85rem' }}>Aucun document.</p>}
                             {sharedDocs.map((d, i) => (
                                 <div key={i} className={styles.sharedDocRow}>
                                     {d.status === 'shared' ? (
@@ -256,7 +244,7 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                                         <span className={styles.sharedBadge}>PARTAGÉ</span>
                                     )}
                                     {d.status === 'hidden' && (
-                                        <span className={styles.hiddenBadge}>MASQUÉ PAR LE PATIENT</span>
+                                        <span className={styles.hiddenBadge}>MASQUÉ</span>
                                     )}
                                 </div>
                             ))}
@@ -276,16 +264,6 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                                     <span>Générer compte-rendu</span>
                                 </button>
                             </div>
-                            <div className={styles.draftBox}>
-                                <div className={styles.draftHeader}>
-                                    <span className={styles.draftLabel}>BROUILLON EN COURS</span>
-                                    <span className={styles.draftDot} />
-                                    <button className={styles.draftEdit}><PenLine size={13} /></button>
-                                </div>
-                                <p className={styles.draftText}>
-                                    Le patient présente une bonne récupération post-opératoire malgré...
-                                </p>
-                            </div>
                             <button className={styles.btnSign} onClick={() => setShowModal(true)}>Réviser & Signer</button>
                         </div>
 
@@ -293,8 +271,8 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                         <div className={styles.sideCard}>
                             <div className={styles.sideCardHeader}>
                                 <h3 className={styles.sideCardTitle}>Documents récents</h3>
-                                <button className={styles.seeAllBtn}>See All</button>
                             </div>
+                            {recentDocs.length === 0 && <p style={{ color: '#9CA3AF', fontSize: '0.85rem' }}>Aucun document récent.</p>}
                             {recentDocs.map((d, i) => (
                                 <div key={i} className={styles.recentDocRow}>
                                     <span className={styles.recentDocIcon}>{d.icon}</span>
@@ -302,29 +280,9 @@ export default function DoctorPatientFilePage({ onBack, onPatients, onLogout, on
                                         <span className={styles.recentDocName}>{d.name}</span>
                                         <span className={styles.recentDocMeta}>{d.meta}</span>
                                     </div>
-                                    <button className={styles.recentDocAction}>
-                                        {d.action === 'download' ? <Download size={15} /> : <ExternalLink size={15} />}
-                                    </button>
                                 </div>
                             ))}
                         </div>
-
-                        {/* Cercle de soins */}
-                        <div className={`${styles.sideCard} ${styles.cercleCard}`}>
-                            <h3 className={styles.cercleTitle}>CERCLE DE SOINS</h3>
-                            {cercle.map((c, i) => (
-                                <div key={i} className={styles.cercleRow}>
-                                    <div className={styles.cercleAvatar} style={{ background: c.color }}>
-                                        {c.initial}
-                                    </div>
-                                    <div>
-                                        <div className={styles.cercleName}>{c.name}</div>
-                                        <div className={styles.cercleRole}>{c.role}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
                     </div>
                 </div>
             </div>

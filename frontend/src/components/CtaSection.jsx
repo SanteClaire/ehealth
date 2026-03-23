@@ -2,7 +2,7 @@ import styles from './CtaSection.module.css'
 
 export default function CtaSection({ onOpenModal }) {
     return (
-        <section className={styles.section}>
+        <section className={styles.section} id="cta">
             <div className={styles.eyebrow}>Rejoignez SantéClaire</div>
             <h2 className={`${styles.title} fade-in`}>
                 Prêt à simplifier votre parcours de santé ?

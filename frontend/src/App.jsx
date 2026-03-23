@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useFadeIn } from './hooks/useFadeIn'
+import { LanguageProvider } from './hooks/useLanguage'
+import { logout as apiLogout, getCachedUser, removeToken, getUserRole, fetchMe, isAuthenticated } from './services/api'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import TrustBar from './components/TrustBar'
@@ -13,13 +15,13 @@ import LoginPage from './components/LoginPage'
 import RegisterPage from './components/RegisterPage'
 import PatientRegisterPage from './components/PatientRegisterPage'
 import PatientConfirmPage from './components/PatientConfirmPage'
-import PatientDashboard from './components/PatientDashboard'
 import DoctorRegisterPage from './components/DoctorRegisterPage'
 import DoctorExercicePage from './components/DoctorExercicePage'
 import DoctorDocumentsPage from './components/DoctorDocumentsPage'
 import DoctorConfirmPage from './components/DoctorConfirmPage'
 import DoctorDashboard from './components/DoctorDashboard'
 import DoctorPatientsPage from './components/DoctorPatientsPage'
+import DoctorAddPatientPage from './components/DoctorAddPatientPage'
 import DoctorPatientFilePage from './components/DoctorPatientFilePage'
 import DoctorConsultationPage from './components/DoctorConsultationPage'
 import DoctorMedicalRecordsPage from './components/DoctorMedicalRecordsPage'
@@ -27,23 +29,34 @@ import DoctorPatientOverviewPage from './components/DoctorPatientOverviewPage'
 import DoctorSchedulePage from './components/DoctorSchedulePage'
 import DoctorSettingsPage from './components/DoctorSettingsPage'
 import DoctorMessagesPage from './components/DoctorMessagesPage'
-import { authService } from './services/authService'
+import DoctorProfilePage from './components/DoctorProfilePage'
+import PatientDashboard from './components/PatientDashboard'
+import PatientDocumentsPage from './components/PatientDocumentsPage'
+import PatientChatbotPage from './components/PatientChatbotPage'
+import PatientFamilyProfiles from './components/PatientFamilyProfiles'
+import PatientManageRights from './components/PatientManageRights'
+import PatientSettingsPage from './components/PatientSettingsPage'
+import PatientProfilePage from './components/PatientProfilePage'
 
-export default function App() {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  
+function AppContent() {
   const [showLogin, setShowLogin] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [showPatientRegister, setShowPatientRegister] = useState(false)
   const [showPatientConfirm, setShowPatientConfirm] = useState(false)
   const [showPatientDashboard, setShowPatientDashboard] = useState(false)
+  const [showPatientDocuments, setShowPatientDocuments] = useState(false)
+  const [showPatientChatbot, setShowPatientChatbot] = useState(false)
+  const [showPatientFamilyProfiles, setShowPatientFamilyProfiles] = useState(false)
+  const [showPatientManageRights, setShowPatientManageRights] = useState(false)
+  const [showPatientSettings, setShowPatientSettings] = useState(false)
+  const [showPatientProfile, setShowPatientProfile] = useState(false)
   const [showDoctorRegister, setShowDoctorRegister] = useState(false)
   const [showDoctorExercice, setShowDoctorExercice] = useState(false)
   const [showDoctorDocuments, setShowDoctorDocuments] = useState(false)
   const [showDoctorConfirm, setShowDoctorConfirm] = useState(false)
   const [showDoctorDashboard, setShowDoctorDashboard] = useState(false)
   const [showDoctorPatients, setShowDoctorPatients] = useState(false)
+  const [showDoctorAddPatient, setShowDoctorAddPatient] = useState(false)
   const [showDoctorPatientFile, setShowDoctorPatientFile] = useState(false)
   const [showDoctorConsultation, setShowDoctorConsultation] = useState(false)
   const [showDoctorMedicalRecords, setShowDoctorMedicalRecords] = useState(false)
@@ -52,34 +65,38 @@ export default function App() {
   const [showDoctorSchedule, setShowDoctorSchedule] = useState(false)
   const [showDoctorSettings, setShowDoctorSettings] = useState(false)
   const [showDoctorMessages, setShowDoctorMessages] = useState(false)
+  const [showDoctorProfile, setShowDoctorProfile] = useState(false)
+  const [selectedMemberId, setSelectedMemberId] = useState('alice')
+  const [selectedPatientId, setSelectedPatientId] = useState(null)
+  const [currentUser, setCurrentUser] = useState(null)
 
+  // On mount, check if user is already logged in
   useEffect(() => {
-    checkAuth()
+    if (isAuthenticated()) {
+      const cached = getCachedUser()
+      if (cached) {
+        setCurrentUser(cached)
+        const role = getUserRole(cached)
+        if (role === 'medecin') setShowDoctorDashboard(true)
+        else if (role === 'patient') setShowPatientDashboard(true)
+      } else {
+        fetchMe().then(res => {
+          if (res.success) {
+            setCurrentUser(res.data)
+            const role = getUserRole(res.data)
+            if (role === 'medecin') setShowDoctorDashboard(true)
+            else if (role === 'patient') setShowPatientDashboard(true)
+          } else {
+            removeToken()
+          }
+        })
+      }
+    }
   }, [])
 
-  const checkAuth = async () => {
-    try {
-      const data = await authService.getMe()
-      if (data && data.success) {
-        setUser(data.data)
-        // Redirection auto selon le rôle
-        if (data.data.roles.includes('ROLE_MEDECIN')) {
-          setShowDoctorDashboard(true)
-        } else {
-          // Patient dashboard
-          setShowPatientDashboard(true) 
-        }
-      }
-    } catch (err) {
-      console.error('Auth check failed', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleLogout = () => {
-    authService.logout()
-    setUser(null)
+    apiLogout()
+    setCurrentUser(null)
     resetAll()
   }
 
@@ -89,12 +106,19 @@ export default function App() {
     setShowPatientRegister(false)
     setShowPatientConfirm(false)
     setShowPatientDashboard(false)
+    setShowPatientDocuments(false)
+    setShowPatientChatbot(false)
+    setShowPatientFamilyProfiles(false)
+    setShowPatientManageRights(false)
+    setShowPatientSettings(false)
+    setShowPatientProfile(false)
     setShowDoctorRegister(false)
     setShowDoctorExercice(false)
     setShowDoctorDocuments(false)
     setShowDoctorConfirm(false)
     setShowDoctorDashboard(false)
     setShowDoctorPatients(false)
+    setShowDoctorAddPatient(false)
     setShowDoctorPatientFile(false)
     setShowDoctorConsultation(false)
     setShowDoctorMedicalRecords(false)
@@ -102,11 +126,7 @@ export default function App() {
     setShowDoctorSchedule(false)
     setShowDoctorSettings(false)
     setShowDoctorMessages(false)
-  }
-
-  const onLoginSuccess = () => {
-    setShowLogin(false)
-    checkAuth()
+    setShowDoctorProfile(false)
   }
 
   useFadeIn()
@@ -118,17 +138,138 @@ export default function App() {
     if (dest === 'patients') setShowDoctorPatients(true)
     if (dest === 'planning') setShowDoctorSchedule(true)
     if (dest === 'messages') setShowDoctorMessages(true)
-    if (dest === 'reports') setShowDoctorDashboard(true) // TODO: Rapports plus tard
     if (dest === 'settings') setShowDoctorSettings(true)
+    if (dest === 'profil') setShowDoctorProfile(true)
   }
-
-  if (loading) return null // Ou un loader
 
   if (showPatientDashboard) {
     return (
       <PatientDashboard
-        user={user}
+        user={currentUser}
         onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') setShowPatientDashboard(true)
+          if (dest === 'documents') { setShowPatientDashboard(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') { setShowPatientDashboard(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') { setShowPatientDashboard(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') { setShowPatientDashboard(false); setShowPatientSettings(true) }
+          if (dest === 'profil') { setShowPatientDashboard(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientDashboard(false); setShowPatientDashboard(true) }
+        }}
+      />
+    )
+  }
+
+  if (showPatientChatbot) {
+    return (
+      <PatientChatbotPage
+        user={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientChatbot(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') { setShowPatientChatbot(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') { setShowPatientChatbot(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') setShowPatientChatbot(true)
+          if (dest === 'settings') { setShowPatientChatbot(false); setShowPatientSettings(true) }
+          if (dest === 'profil') { setShowPatientChatbot(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientChatbot(false); setShowPatientDashboard(true) }
+        }}
+      />
+    )
+  }
+
+  if (showPatientDocuments) {
+    return (
+      <PatientDocumentsPage
+        user={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientDocuments(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') setShowPatientDocuments(true)
+          if (dest === 'famille') { setShowPatientDocuments(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') { setShowPatientDocuments(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') { setShowPatientDocuments(false); setShowPatientSettings(true) }
+          if (dest === 'profil') { setShowPatientDocuments(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientDocuments(false); setShowPatientDashboard(true) }
+        }}
+      />
+    )
+  }
+
+  if (showPatientFamilyProfiles) {
+    return (
+      <PatientFamilyProfiles
+        user={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientFamilyProfiles(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') { setShowPatientFamilyProfiles(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') setShowPatientFamilyProfiles(true)
+          if (dest === 'ia') { setShowPatientFamilyProfiles(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') { setShowPatientFamilyProfiles(false); setShowPatientSettings(true) }
+          if (dest === 'profil') { setShowPatientFamilyProfiles(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientFamilyProfiles(false); setShowPatientDashboard(true) }
+        }}
+        onManageRights={(memberId) => { 
+          setSelectedMemberId(memberId)
+          setShowPatientFamilyProfiles(false)
+          setShowPatientManageRights(true) 
+        }}
+      />
+    )
+  }
+
+  if (showPatientManageRights) {
+    return (
+      <PatientManageRights
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientManageRights(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') { setShowPatientManageRights(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') { setShowPatientManageRights(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') { setShowPatientManageRights(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') { setShowPatientManageRights(false); setShowPatientSettings(true) }
+          if (dest === 'profil') { setShowPatientManageRights(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientManageRights(false); setShowPatientDashboard(true) }
+        }}
+        onBack={() => { setShowPatientManageRights(false); setShowPatientFamilyProfiles(true) }}
+        selectedMemberId={selectedMemberId}
+      />
+    )
+  }
+
+  if (showPatientSettings) {
+    return (
+      <PatientSettingsPage
+        user={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientSettings(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') { setShowPatientSettings(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') { setShowPatientSettings(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') { setShowPatientSettings(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') setShowPatientSettings(true)
+          if (dest === 'profil') { setShowPatientSettings(false); setShowPatientProfile(true) }
+          if (dest === 'rdv') { setShowPatientSettings(false); setShowPatientDashboard(true) }
+        }}
+      />
+    )
+  }
+
+  if (showPatientProfile) {
+    return (
+      <PatientProfilePage
+        user={currentUser}
+        onLogout={handleLogout}
+        onNavigate={(dest) => {
+          if (dest === 'dashboard') { setShowPatientProfile(false); setShowPatientDashboard(true) }
+          if (dest === 'documents') { setShowPatientProfile(false); setShowPatientDocuments(true) }
+          if (dest === 'famille') { setShowPatientProfile(false); setShowPatientFamilyProfiles(true) }
+          if (dest === 'ia') { setShowPatientProfile(false); setShowPatientChatbot(true) }
+          if (dest === 'settings') { setShowPatientProfile(false); setShowPatientSettings(true) }
+          if (dest === 'profil') setShowPatientProfile(true)
+          if (dest === 'rdv') setShowPatientProfile(true)
+        }}
       />
     )
   }
@@ -141,12 +282,23 @@ export default function App() {
     )
   }
 
+  if (showDoctorProfile) {
+    return (
+      <DoctorProfilePage
+        user={currentUser}
+        onNavigate={handleDoctorNav}
+        onLogout={handleLogout}
+      />
+    )
+  }
+
   if (showDoctorPatientOverview) {
     return (
       <DoctorPatientOverviewPage
+        patientId={selectedPatientId}
         onNavigate={handleDoctorNav}
         onBack={() => { setShowDoctorPatientOverview(false); setShowDoctorPatientFile(true) }}
-        onLogout={resetAll}
+        onLogout={handleLogout}
       />
     )
   }
@@ -154,9 +306,10 @@ export default function App() {
   if (showDoctorMedicalRecords) {
     return (
       <DoctorMedicalRecordsPage
+        patientId={selectedPatientId}
         onNavigate={handleDoctorNav}
         onBack={() => { setShowDoctorMedicalRecords(false); setShowDoctorPatientFile(true) }}
-        onLogout={resetAll}
+        onLogout={handleLogout}
       />
     )
   }
@@ -164,6 +317,8 @@ export default function App() {
   if (showDoctorConsultation) {
     return (
       <DoctorConsultationPage
+        patientId={selectedPatientId}
+        user={currentUser}
         onEnd={() => { setShowDoctorConsultation(false); setShowDoctorPatientFile(true) }}
       />
     )
@@ -172,10 +327,11 @@ export default function App() {
   if (showDoctorPatientFile) {
     return (
       <DoctorPatientFilePage
+        patientId={selectedPatientId}
         onNavigate={handleDoctorNav}
         onBack={() => { setShowDoctorPatientFile(false); setShowDoctorDashboard(true) }}
         onPatients={() => { setShowDoctorPatientFile(false); setShowDoctorPatients(true) }}
-        onLogout={resetAll}
+        onLogout={handleLogout}
         onConsult={() => { setShowDoctorPatientFile(false); setShowDoctorConsultation(true) }}
         onMedicalRecords={() => { setShowDoctorPatientFile(false); setShowDoctorMedicalRecords(true) }}
         onPatientOverview={() => { setShowDoctorPatientFile(false); setShowDoctorPatientOverview(true) }}
@@ -183,33 +339,51 @@ export default function App() {
     )
   }
 
+  if (showDoctorAddPatient) {
+    return (
+      <DoctorAddPatientPage
+        onNavigate={handleDoctorNav}
+        onLogout={handleLogout}
+        onBack={() => {
+          setShowDoctorAddPatient(false)
+          setShowDoctorPatients(true)
+        }}
+      />
+    )
+  }
+
   if (showDoctorPatients) {
     return (
       <DoctorPatientsPage
+        user={currentUser}
         onNavigate={handleDoctorNav}
         onBack={() => { setShowDoctorPatients(false); setShowDoctorDashboard(true) }}
-        onLogout={resetAll}
-        onPatientFile={() => { setShowDoctorPatients(false); setShowDoctorPatientFile(true) }}
+        onLogout={handleLogout}
+        onPatientFile={(patientId) => { setSelectedPatientId(patientId); setShowDoctorPatients(false); setShowDoctorPatientFile(true) }}
+        onAddPatient={() => {
+          setShowDoctorPatients(false)
+          setShowDoctorAddPatient(true)
+        }}
       />
     )
   }
 
   if (showDoctorSchedule) {
-    return <DoctorSchedulePage onNavigate={handleDoctorNav} onLogout={resetAll} />
+    return <DoctorSchedulePage user={currentUser} onNavigate={handleDoctorNav} onLogout={handleLogout} />
   }
 
   if (showDoctorSettings) {
-    return <DoctorSettingsPage user={user} onNavigate={handleDoctorNav} onLogout={handleLogout} />
+    return <DoctorSettingsPage user={currentUser} onNavigate={handleDoctorNav} onLogout={handleLogout} />
   }
 
   if (showDoctorMessages) {
-    return <DoctorMessagesPage onNavigate={handleDoctorNav} onLogout={resetAll} />
+    return <DoctorMessagesPage user={currentUser} onNavigate={handleDoctorNav} onLogout={handleLogout} />
   }
 
   if (showDoctorDashboard) {
     return (
       <DoctorDashboard
-        user={user}
+        user={currentUser}
         onNavigate={handleDoctorNav}
         onLogout={handleLogout}
         onPatients={() => { setShowDoctorDashboard(false); setShowDoctorPatients(true) }}
@@ -268,7 +442,8 @@ export default function App() {
       <LoginPage
         onClose={() => setShowLogin(false)}
         onRegister={() => { setShowLogin(false); setShowRegister(true) }}
-        onLoginSuccess={onLoginSuccess}
+        onDoctorLogin={(userData) => { setCurrentUser(userData); setShowLogin(false); setShowDoctorDashboard(true) }}
+        onPatientLogin={(userData) => { setCurrentUser(userData); setShowLogin(false); setShowPatientDashboard(true) }}
       />
     )
   }
@@ -299,5 +474,13 @@ export default function App() {
       <CtaSection onOpenModal={() => setShowRegister(true)} />
       <Footer />
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   )
 }

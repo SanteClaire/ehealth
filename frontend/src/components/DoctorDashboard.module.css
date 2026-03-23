@@ -3,145 +3,26 @@
     display: flex;
     min-height: 100vh;
     background: #F7F8FC;
-    font-family: 'DM Sans', sans-serif;
+    font-family: var(--font-family);
     color: #111827;
 }
 
-/* ── Sidebar ── */
-.sidebar {
-    width: 220px;
-    min-width: 220px;
-    background: #fff;
-    border-right: 1px solid #E5E7EB;
+.consultationBar {
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1.5rem 0 1.25rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 10;
-}
-
-.sidebarTop {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.brand {
-    padding: 0 1.25rem;
-    display: flex;
-    justify-content: center;
-}
-
-.logo {
-    width: 120px;
-    object-fit: contain;
-}
-
-.nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0 0.75rem;
-}
-
-.navItem {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.85rem;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-    color: #6B7280;
-    font-size: 0.88rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    text-align: left;
-    width: 100%;
-    transition: background 0.18s, color 0.18s;
-}
-
-.navItem:hover {
-    background: #F3F4F6;
-    color: #0F2445;
-}
-
-.navActive {
-    background: #0F2445 !important;
-    color: #fff !important;
-    font-weight: 600;
-}
-
-.navIcon {
-    font-size: 1rem;
-    width: 20px;
-    text-align: center;
-}
-
-.sidebarBottom {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 0 0.75rem;
-}
-
-.doctorInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0 0.25rem;
-}
-
-.doctorAvatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #0EA5B0, #0F2445);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.doctorName {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: #0F2445;
-}
-
-.doctorStatus {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.7rem;
-    color: #22C55E;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-}
-
-.statusDot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #22C55E;
-    display: inline-block;
+    justify-content: flex-start;
+    margin-bottom: 0.35rem;
 }
 
 .btnConsultation {
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: auto;
     background: #0F2445;
     color: #fff;
     border: none;
     border-radius: 10px;
-    padding: 0.75rem 0.5rem;
+    padding: 0.65rem 1rem;
     font-size: 0.82rem;
     font-weight: 700;
     cursor: pointer;
@@ -157,7 +38,7 @@
 /* ── Main ── */
 .main {
     flex: 1;
-    margin-left: 220px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -248,6 +129,53 @@
     font-size: 0.82rem;
     font-weight: 700;
     color: #0F2445;
+}
+
+.doctorProfileChip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font: inherit;
+    margin-right: 4px;
+    transition: background 0.2s;
+}
+
+.doctorProfileChip:hover {
+    background: #e5e7eb;
+}
+
+.doctorProfileChip:focus-visible {
+    outline: 2px solid #1e40af;
+    outline-offset: 2px;
+}
+
+.doctorProfileAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0ea5b0, #0f2445);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.doctorProfileName {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ── Content ── */

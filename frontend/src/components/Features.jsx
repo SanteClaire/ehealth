@@ -1,38 +1,41 @@
 import styles from './Features.module.css'
-
-const features = [
-    {
-        icon: '🤖',
-        title: 'Assistant IA médical',
-        text: "Posez vos questions sur vos ordonnances, résultats d'analyses ou posologie. L'IA analyse vos documents pour des réponses précises et personnalisées.",
-    },
-    {
-        icon: '🎙️',
-        title: 'Transcription automatique',
-        text: "Le médecin enregistre la consultation, Whisper transcrit en temps réel et l'IA génère un compte rendu structuré et signable en un clic.",
-        delay: '0.1s',
-    },
-    {
-        icon: '👨‍👩‍👧',
-        title: 'Gestion de la famille',
-        text: "Gérez les dossiers médicaux de vos proches en tant que représentant légal. Tutelle, représentation parentale — tout est pris en charge.",
-        delay: '0.15s',
-    },
-    {
-        icon: '⏱️',
-        title: 'Accès temporaire RGPD',
-        text: "Votre médecin accède à vos documents uniquement pendant la durée de la consultation. L'accès expire automatiquement — vous gardez le contrôle.",
-        delay: '0.2s',
-    },
-]
+import { useLanguage } from '../hooks/useLanguage'
 
 export default function Features() {
+    const { t } = useLanguage()
+
+    const features = [
+        {
+            icon: '🤖',
+            title: t('features.ai'),
+            text: t('features.ai_desc'),
+        },
+        {
+            icon: '🎙️',
+            title: t('features.transcription') || 'Transcription automatique',
+            text: t('features.transcription_desc') || "Le médecin enregistre la consultation, Whisper transcrit en temps réel et l'IA génère un compte rendu structuré et signable en un clic.",
+            delay: '0.1s',
+        },
+        {
+            icon: '👨‍👩‍👧',
+            title: t('features.family'),
+            text: t('features.family_desc'),
+            delay: '0.15s',
+        },
+        {
+            icon: '⏱️',
+            title: t('features.access') || 'Accès temporaire RGPD',
+            text: t('features.access_desc') || "Votre médecin accède à vos documents uniquement pendant la durée de la consultation. L'accès expire automatiquement — vous gardez le contrôle.",
+            delay: '0.2s',
+        },
+    ]
+
     return (
         <section className={styles.section} id="features">
-            <div className={`${styles.eyebrow} fade-in`}>Fonctionnalités</div>
-            <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>Tout ce dont vous<br />avez besoin.</h2>
+            <div className={`${styles.eyebrow} fade-in`}>{t('features.title')}</div>
+            <h2 className={`${styles.title} fade-in`} style={{ transitionDelay: '0.08s' }}>{t('features.subtitle_visual')}</h2>
             <p className={`${styles.sub} fade-in`} style={{ transitionDelay: '0.16s' }}>
-                Des outils pensés pour simplifier le parcours de soin, côté patient comme côté médecin.
+                {t('features.subtitle')}
             </p>
             <div className={styles.grid}>
                 {features.map((f, i) => (
