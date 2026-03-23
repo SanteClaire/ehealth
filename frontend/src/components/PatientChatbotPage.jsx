@@ -2,9 +2,10 @@ import { useState, useRef } from 'react'
 import {
     LayoutDashboard, FileText, Users, MessageCircle, Settings,
     LogOut, Send, Upload, Scan, Share2, AlertCircle, Shield, PhoneCall,
-    Search, Bell, Plus, Info, Lock, Mic,
+    Search, Bell, Plus, Info, Lock, Mic, Loader,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
+import { sendChatbotMessage } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientChatbotPage.module.css'
 import logo from '../assets/logo.png'
@@ -34,23 +35,67 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
     ])
     const [inputValue, setInputValue] = useState('')
     const [isListening, setIsListening] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [conversationId, setConversationId] = useState(null)
     const recognitionRef = useRef(null)
+    const messagesEndRef = useRef(null)
 
-    const appendUserMessage = (text) => {
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    const sendToBot = async (text) => {
         const trimmed = text.trim()
         if (!trimmed) return
-        const newMessage = {
+
+        // Add user message
+        const userMsg = {
             id: Date.now(),
             author: 'user',
-            timestamp: 'Sent • ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
             text: trimmed,
         }
-        setMessages((prev) => [...prev, newMessage])
+        setMessages(prev => [...prev, userMsg])
         setInputValue('')
+        setIsLoading(true)
+
+        try {
+            const patientId = user?.id ? String(user.id) : 'anonymous'
+            const result = await sendChatbotMessage(trimmed, patientId, conversationId)
+
+            if (result.success) {
+                if (result.data.conversationId) setConversationId(result.data.conversationId)
+                const botMsg = {
+                    id: Date.now() + 1,
+                    author: 'bot',
+                    timestamp: `SantéClaire AI • ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`,
+                    text: result.data.response,
+                    source: result.data.metadata?.source,
+                }
+                setMessages(prev => [...prev, botMsg])
+            } else {
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    author: 'bot',
+                    timestamp: 'SantéClaire AI',
+                    text: 'Désolé, une erreur est survenue. Veuillez réessayer.',
+                }])
+            }
+        } catch (err) {
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1,
+                author: 'bot',
+                timestamp: 'SantéClaire AI',
+                text: 'Le service chatbot est temporairement indisponible. Veuillez réessayer plus tard.',
+            }])
+        } finally {
+            setIsLoading(false)
+            setTimeout(scrollToBottom, 100)
+        }
     }
 
     const handleSendMessage = () => {
-        appendUserMessage(inputValue)
+        sendToBot(inputValue)
     }
 
     const handleQuickAction = (presetKey) => {
@@ -59,7 +104,7 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
             rx: t('chatbot.myPrescriptions'),
             lab: t('chatbot.myResults'),
         }
-        appendUserMessage(presets[presetKey] || '')
+        sendToBot(presets[presetKey] || '')
     }
 
     const handleTopicClick = (titleKey) => {
@@ -246,6 +291,18 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
                             </div>
                         </div>
                     ))}
+                    {isLoading && (
+                        <div className={`${styles.messageGroup} ${styles.msg_bot}`}>
+                            <div className={styles.botIcon}>AI</div>
+                            <div className={styles.messageContent}>
+                                <div className={styles.timestamp}>SantéClaire AI</div>
+                                <div className={styles.message}>
+                                    <p style={{ color: '#9CA3AF', fontStyle: 'italic' }}>Réflexion en cours...</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <div ref={messagesEndRef} />
                 </div>
 
                 {/* Quick actions */}
@@ -309,7 +366,7 @@ export default function PatientChatbotPage({ user, onLogout, onNavigate, onBack 
                         <button
                             className={styles.sendBtn}
                             onClick={handleSendMessage}
-                            disabled={!inputValue.trim()}
+                            disabled={!inputValue.trim() || isLoading}
                         >
                             <Send size={16} />
                         </button>

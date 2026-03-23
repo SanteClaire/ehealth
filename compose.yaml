@@ -35,6 +35,17 @@ services:
     depends_on:
       - database
 
+  chatbot:
+    build:
+      context: ./chatbot-SanteClaire
+    container_name: santeclaire_chatbot
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./chatbot-SanteClaire/.env
+    depends_on:
+      - database
+
   frontend:
     build:
       context: ./frontend
@@ -46,8 +57,10 @@ services:
       - "5173:5173"
     environment:
       VITE_API_URL: "http://localhost:8000/api"
+      VITE_CHATBOT_URL: "http://localhost:3001/api"
     depends_on:
       - backend
+      - chatbot
 
 volumes:
   db_data:

@@ -161,6 +161,24 @@ export async function downloadOrdonnancePdf(ordonnanceId) {
     URL.revokeObjectURL(url)
 }
 
+// ─── Chatbot ───
+
+const CHATBOT_URL = import.meta.env.VITE_CHATBOT_URL || 'http://localhost:3001/api'
+
+export async function sendChatbotMessage(message, patientId, conversationId = null) {
+    const res = await fetch(`${CHATBOT_URL}/chatbot/message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, patientId: String(patientId), conversationId }),
+    })
+    return res.json()
+}
+
+export async function getChatbotSuggestions() {
+    const res = await fetch(`${CHATBOT_URL}/chatbot/suggestions`)
+    return res.json()
+}
+
 // ─── Helpers ───
 
 export function isAuthenticated() {
