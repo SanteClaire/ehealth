@@ -5,7 +5,7 @@ import {
     AlertCircle, Clock, Mail, FolderOpen, Bot,
 } from 'lucide-react'
 import { useLanguage } from '../hooks/useLanguage'
-import { fetchPatientStats, fetchPatientConsultations, fetchPatientDocuments, fetchPatientOrdonnances } from '../services/api'
+import { fetchPatientStats, fetchPatientConsultations, fetchPatientDocuments, fetchPatientOrdonnances, downloadOrdonnancePdf } from '../services/api'
 import LanguageSwitcher from './LanguageSwitcher'
 import styles from './PatientDashboard.module.css'
 import logo from '../assets/logo.png'
@@ -40,7 +40,8 @@ export default function PatientDashboard({ user, onLogout, onNavigate }) {
             title: `Ordonnance Dr. ${latest.medecin.lastName}`,
             statusType: 'new',
             desc: `Émise le ${new Date(latest.dateEmission).toLocaleDateString('fr-FR')}`,
-            onAction: () => onNavigate && onNavigate('documents'),
+            onAction: () => downloadOrdonnancePdf(latest.id),
+            actionLabel: 'Télécharger PDF',
         })
     }
     if (consultations.length > 0) {
@@ -205,7 +206,7 @@ export default function PatientDashboard({ user, onLogout, onNavigate }) {
                                         className={styles.cardAction}
                                         onClick={item.onAction}
                                     >
-                                        {t('dashboard.view')}
+                                        {item.actionLabel || t('dashboard.view')}
                                     </button>
                                 </div>
                             ))}

@@ -138,6 +138,29 @@ export async function fetchMedecinPatientDetail(patientId) {
     return apiFetch(`/medecin/patient/${patientId}`)
 }
 
+// ─── PDF ───
+
+export function getOrdonnancePdfUrl(ordonnanceId) {
+    return `${API_URL}/ordonnance/${ordonnanceId}/pdf`
+}
+
+export async function downloadOrdonnancePdf(ordonnanceId) {
+    const token = getToken()
+    const res = await fetch(`${API_URL}/ordonnance/${ordonnanceId}/pdf`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) throw new Error('Erreur lors du téléchargement')
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Ordonnance_${ordonnanceId}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+}
+
 // ─── Helpers ───
 
 export function isAuthenticated() {
