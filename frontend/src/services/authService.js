@@ -1,5 +1,13 @@
 const API_URL = 'http://localhost:8000/api';
 
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': token ? `Bearer ${token}` : ''
+    };
+};
+
 export const authService = {
     async login(email, password) {
         const response = await fetch(`${API_URL}/login_check`, {
@@ -44,5 +52,42 @@ export const authService = {
 
     logout() {
         localStorage.removeItem('token');
+    },
+
+    // Patient APIs
+    async getPatientConsultations() {
+        const response = await fetch(`${API_URL}/patient/consultations`, {
+            headers: getAuthHeaders()
+        });
+        return await response.json();
+    },
+
+    async getPatientStats() {
+        const response = await fetch(`${API_URL}/patient/stats`, {
+            headers: getAuthHeaders()
+        });
+        return await response.json();
+    },
+
+    // Medecin APIs
+    async getMedecinConsultations() {
+        const response = await fetch(`${API_URL}/medecin/consultations`, {
+            headers: getAuthHeaders()
+        });
+        return await response.json();
+    },
+
+    async getMedecinStats() {
+        const response = await fetch(`${API_URL}/medecin/stats`, {
+            headers: getAuthHeaders()
+        });
+        return await response.json();
+    },
+
+    async getMedecinTodayAppointments() {
+        const response = await fetch(`${API_URL}/medecin/appointments/today`, {
+            headers: getAuthHeaders()
+        });
+        return await response.json();
     }
 };

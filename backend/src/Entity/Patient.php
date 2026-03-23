@@ -59,4 +59,9 @@ class Patient extends User
     public function setAllergies(?string $allergies): self { $this->allergies = $allergies; return $this; }
     public function getAntecedents(): ?string { return $this->antecedents; }
     public function setAntecedents(?string $antecedents): self { $this->antecedents = $antecedents; return $this; }
+
+    public function __toString(): string
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
+    }
 }

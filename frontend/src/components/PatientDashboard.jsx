@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
     Home, 
     Folder, 
@@ -15,9 +15,45 @@ import {
 } from 'lucide-react'
 import styles from './PatientDashboard.module.css'
 import logo from '../assets/logo2.png'
+import { authService } from '../services/authService'
 
 export default function PatientDashboard({ user, onLogout }) {
     const [activeTab, setActiveTab] = useState('dashboard')
+    const [stats, setStats] = useState({ rdvCount: 0, ordonnancesCount: 0, documentsCount: 0, messagesCount: 0 })
+    const [consultations, setConsultations] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    const loadData = async () => {
+        try {
+            const [statsRes, consultRes] = await Promise.all([
+                authService.getPatientStats(),
+                authService.getPatientConsultations()
+            ])
+            if (statsRes.success) setStats(statsRes.data)
+            if (consultRes.success) setConsultations(consultRes.data)
+        } catch (err) {
+            console.error('Failed to load patient data', err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return { day: '--', month: '---', time: '--:--' }
+        const date = new Date(dateStr)
+        return {
+            day: date.getDate().toString().padStart(2, '0'),
+            month: date.toLocaleDateString('fr-FR', { month: 'short' }),
+            time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+        }
+    }
+
+    // Filter future consultations
+    const upcomingConsultations = consultations.filter(c => new Date(c.dateDebut) > new Date())
 
     const menuItems = [
         { id: 'dashboard', icon: Home, label: 'Tableau de bord' },
@@ -69,7 +105,7 @@ export default function PatientDashboard({ user, onLogout }) {
                     <div className={styles.headerRight}>
                         <button className={styles.notifBtn}>
                             <Bell size={20} />
-                            <span className={styles.notifBadge}>2</span>
+                            {stats.messagesCount > 0 && <span className={styles.notifBadge}>{stats.messagesCount}</span>}
                         </button>
                         <div className={styles.userAvatar}>
                             <User size={20} />
@@ -86,7 +122,7 @@ export default function PatientDashboard({ user, onLogout }) {
                                 <Calendar size={24} />
                             </div>
                             <div className={styles.statInfo}>
-                                <span className={styles.statValue}>2</span>
+                                <span className={styles.statValue}>{stats.rdvCount}</span>
                                 <span className={styles.statLabel}>RDV à venir</span>
                             </div>
                         </div>
@@ -95,7 +131,7 @@ export default function PatientDashboard({ user, onLogout }) {
                                 <FileText size={24} />
                             </div>
                             <div className={styles.statInfo}>
-                                <span className={styles.statValue}>3</span>
+                                <span className={styles.statValue}>{stats.ordonnancesCount}</span>
                                 <span className={styles.statLabel}>Ordonnances actives</span>
                             </div>
                         </div>
@@ -104,7 +140,7 @@ export default function PatientDashboard({ user, onLogout }) {
                                 <Folder size={24} />
                             </div>
                             <div className={styles.statInfo}>
-                                <span className={styles.statValue}>12</span>
+                                <span className={styles.statValue}>{stats.documentsCount}</span>
                                 <span className={styles.statLabel}>Documents</span>
                             </div>
                         </div>
@@ -113,7 +149,7 @@ export default function PatientDashboard({ user, onLogout }) {
                                 <MessageSquare size={24} />
                             </div>
                             <div className={styles.statInfo}>
-                                <span className={styles.statValue}>1</span>
+                                <span className={styles.statValue}>{stats.messagesCount}</span>
                                 <span className={styles.statLabel}>Message non lu</span>
                             </div>
                         </div>
@@ -150,30 +186,29 @@ export default function PatientDashboard({ user, onLogout }) {
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>Prochains rendez-vous</h2>
                         <div className={styles.appointmentsList}>
-                            <div className={styles.appointmentCard}>
-                                <div className={styles.appointmentDate}>
-                                    <span className={styles.day}>25</span>
-                                    <span className={styles.month}>Mars</span>
-                                </div>
-                                <div className={styles.appointmentInfo}>
-                                    <strong>Dr. Jean Dupont</strong>
-                                    <span>Médecine Générale</span>
-                                    <span className={styles.time}>14h30</span>
-                                </div>
-                                <button className={styles.detailsBtn}>Détails</button>
-                            </div>
-                            <div className={styles.appointmentCard}>
-                                <div className={styles.appointmentDate}>
-                                    <span className={styles.day}>02</span>
-                                    <span className={styles.month}>Avril</span>
-                                </div>
-                                <div className={styles.appointmentInfo}>
-                                    <strong>Dr. Sophie Martin</strong>
-                                    <span>Cardiologie</span>
-                                    <span className={styles.time}>10h00</span>
-                                </div>
-                                <button className={styles.detailsBtn}>Détails</button>
-                            </div>
+                            {loading ? (
+                                <p>Chargement...</p>
+                            ) : upcomingConsultations.length === 0 ? (
+                                <p className={styles.emptyText}>Aucun rendez-vous à venir</p>
+                            ) : (
+                                upcomingConsultations.map(consultation => {
+                                    const { day, month, time } = formatDate(consultation.dateDebut)
+                                    return (
+                                        <div key={consultation.id} className={styles.appointmentCard}>
+                                            <div className={styles.appointmentDate}>
+                                                <span className={styles.day}>{day}</span>
+                                                <span className={styles.month}>{month}</span>
+                                            </div>
+                                            <div className={styles.appointmentInfo}>
+                                                <strong>Dr. {consultation.medecin.firstName} {consultation.medecin.lastName}</strong>
+                                                <span>{consultation.medecin.specialite || 'Médecin'}</span>
+                                                <span className={styles.time}>{time}</span>
+                                            </div>
+                                            <button className={styles.detailsBtn}>Détails</button>
+                                        </div>
+                                    )
+                                })
+                            )}
                         </div>
                     </section>
                 </div>

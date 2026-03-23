@@ -7,55 +7,8 @@ import {
 import styles from './DoctorDashboard.module.css'
 import PatientChatbot from './Chatbot/PatientChatbot'
 import logo from '../assets/logo2.png'
-import { useState } from 'react'
-
-const stats = [
-    { label: 'Consultations Today', value: '12', badge: '+20%', badgeType: 'green', icon: CalendarDays },
-    { label: 'Pending Reports', value: '04', badge: 'Sign required', badgeType: 'orange', icon: ClipboardList },
-    { label: 'Shared Documents', value: '08', badge: 'Last 24h', badgeType: 'blue', icon: FileText },
-    { label: 'Urgent Lab Results', value: '02', badge: 'Critical', badgeType: 'red', icon: FlaskConical },
-]
-
-const appointments = [
-    {
-        time: '09:30 AM',
-        name: 'Jean Dupont',
-        desc: 'Bilan de routine • Suivi diabète',
-        status: 'Arrivé(e)',
-        statusType: 'arrived',
-        avatar: 'JD',
-        avatarColor: '#7C3AED',
-    },
-    {
-        time: '10:15 AM',
-        name: 'Sarah Connor',
-        desc: 'Téléconsultation • Renouvellement ordonnance',
-        status: 'En attente',
-        statusType: 'waiting',
-        avatar: 'SC',
-        avatarColor: '#0EA5B0',
-    },
-    {
-        time: '11:00 AM',
-        name: 'Arthur Morgan',
-        dot: true,
-        desc: 'Consultation urgente • Douleur thoracique aiguë',
-        status: 'En cours',
-        statusType: 'ongoing',
-        avatar: 'AM',
-        avatarColor: '#0F2445',
-        action: 'Voir le profil',
-    },
-    {
-        time: '01:30 PM',
-        name: 'Elena Fisher',
-        desc: 'Bilan annuel • Révision analyses',
-        status: 'Planifié(e)',
-        statusType: 'planned',
-        avatar: 'EF',
-        avatarColor: '#6B7280',
-    },
-]
+import { useState, useEffect } from 'react'
+import { authService } from '../services/authService'
 
 const navItems = [
     { icon: LayoutDashboard, label: 'Tableau de bord', id: 'dashboard', active: true },
@@ -91,6 +44,48 @@ const files = [
 export default function DoctorDashboard({ user, onLogout, onPatients, onNavigate }) {
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
     const doctorName = user ? `Dr. ${user.firstName} ${user.lastName}` : 'Dr.'
+
+    const [stats, setStats] = useState({ consultationsToday: 0, pendingReports: 0, sharedDocuments: 0, urgentLabResults: 0 })
+    const [appointments, setAppointments] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    const loadData = async () => {
+        try {
+            const [statsRes, appointmentsRes] = await Promise.all([
+                authService.getMedecinStats(),
+                authService.getMedecinTodayAppointments()
+            ])
+            if (statsRes.success) setStats(statsRes.data)
+            if (appointmentsRes.success) {
+                // Transform appointments for display
+                const formattedAppts = appointmentsRes.data.map((a, idx) => ({
+                    time: a.time,
+                    name: `${a.patient.firstName} ${a.patient.lastName}`,
+                    desc: 'Consultation',
+                    status: a.estActive ? 'En cours' : 'Planifié(e)',
+                    statusType: a.estActive ? 'ongoing' : 'planned',
+                    avatar: a.patient.initials,
+                    avatarColor: ['#7C3AED', '#0EA5B0', '#0F2445', '#6B7280'][idx % 4],
+                }))
+                setAppointments(formattedAppts)
+            }
+        } catch (err) {
+            console.error('Failed to load doctor data', err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const statsDisplay = [
+        { label: 'Consultations Today', value: stats.consultationsToday.toString().padStart(2, '0'), badge: 'Aujourd\'hui', badgeType: 'green', icon: CalendarDays },
+        { label: 'Pending Reports', value: stats.pendingReports.toString().padStart(2, '0'), badge: 'Sign required', badgeType: 'orange', icon: ClipboardList },
+        { label: 'Shared Documents', value: stats.sharedDocuments.toString().padStart(2, '0'), badge: 'Last 24h', badgeType: 'blue', icon: FileText },
+        { label: 'Urgent Lab Results', value: stats.urgentLabResults.toString().padStart(2, '0'), badge: 'Critical', badgeType: 'red', icon: FlaskConical },
+    ]
 
     return (
         <div className={styles.layout}>
@@ -164,7 +159,7 @@ export default function DoctorDashboard({ user, onLogout, onPatients, onNavigate
 
                     {/* Stats */}
                     <div className={styles.statsGrid}>
-                        {stats.map((s, i) => {
+                        {statsDisplay.map((s, i) => {
                             const Icon = s.icon
                             return (
                                 <div key={i} className={styles.statCard}>
@@ -196,29 +191,35 @@ export default function DoctorDashboard({ user, onLogout, onPatients, onNavigate
                             </div>
 
                             <div className={styles.appointmentList}>
-                                {appointments.map((a, i) => (
-                                    <div key={i} className={`${styles.appointment} ${a.statusType === 'ongoing' ? styles.apptOngoing : ''}`}>
-                                        <div className={styles.apptTime}>{a.time}</div>
-                                        <div className={styles.apptAvatar} style={{ background: a.avatarColor }}>
-                                            {a.avatar}
-                                        </div>
-                                        <div className={styles.apptInfo}>
-                                            <div className={styles.apptName}>
-                                                {a.name}
-                                                {a.dot && <span className={styles.urgentDot} />}
+                                {loading ? (
+                                    <p className={styles.loadingText}>Chargement...</p>
+                                ) : appointments.length === 0 ? (
+                                    <p className={styles.emptyText}>Aucune consultation aujourd'hui</p>
+                                ) : (
+                                    appointments.map((a, i) => (
+                                        <div key={i} className={`${styles.appointment} ${a.statusType === 'ongoing' ? styles.apptOngoing : ''}`}>
+                                            <div className={styles.apptTime}>{a.time}</div>
+                                            <div className={styles.apptAvatar} style={{ background: a.avatarColor }}>
+                                                {a.avatar}
                                             </div>
-                                            <div className={styles.apptDesc}>{a.desc}</div>
+                                            <div className={styles.apptInfo}>
+                                                <div className={styles.apptName}>
+                                                    {a.name}
+                                                    {a.dot && <span className={styles.urgentDot} />}
+                                                </div>
+                                                <div className={styles.apptDesc}>{a.desc}</div>
+                                            </div>
+                                            <div className={styles.apptActions}>
+                                                <span className={`${styles.apptStatus} ${styles[`status_${a.statusType}`]}`}>
+                                                    {a.status}
+                                                </span>
+                                                {a.action && (
+                                                    <button className={styles.profileBtn} onClick={() => onPatients && onPatients()}>{a.action}</button>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className={styles.apptActions}>
-                                            <span className={`${styles.apptStatus} ${styles[`status_${a.statusType}`]}`}>
-                                                {a.status}
-                                            </span>
-                                            {a.action && (
-                                                <button className={styles.profileBtn} onClick={() => onPatients && onPatients()}>{a.action}</button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
 

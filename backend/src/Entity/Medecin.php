@@ -64,4 +64,9 @@ class Medecin extends User
     public function setTarifConsultation(?string $tarif): self { $this->tarifConsultation = $tarif; return $this; }
     public function isEstValide(): bool { return $this->estValide; }
     public function setEstValide(bool $valide): self { $this->estValide = $valide; return $this; }
+
+    public function __toString(): string
+    {
+        return 'Dr. ' . $this->getFirstName() . ' ' . $this->getLastName();
+    }
 }
